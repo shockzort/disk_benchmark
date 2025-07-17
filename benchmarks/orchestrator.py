@@ -92,16 +92,16 @@ class BenchmarkOrchestrator:
                 self.results.append(result)
 
                 if result.success:
-                    logger.info(f"✓ {benchmark.name} completed successfully")
+                    logger.info(f"✅ {benchmark.name} completed successfully")
                     # Print quick result summary
                     self._print_quick_result(result)
                 else:
-                    logger.error(f"✗ {benchmark.name} failed: {result.error_message}")
-                    print(f"  ✗ Failed: {result.error_message}")
+                    logger.error(f"💥 {benchmark.name} failed: {result.error_message}")
+                    print(f"  💥 Failed: {result.error_message}")
 
             except Exception as e:
-                logger.error(f"✗ {benchmark.name} crashed: {e}")
-                print(f"  ✗ Crashed: {str(e)}")
+                logger.error(f"💥 {benchmark.name} crashed: {e}")
+                print(f"  💥 Crashed: {str(e)}")
 
                 # Create error result
                 error_result = BenchmarkResult(
@@ -157,7 +157,7 @@ class BenchmarkOrchestrator:
     def _print_quick_result(self, result: BenchmarkResult):
         """Print a quick summary of benchmark result."""
         if not result.success or not result.metrics:
-            print(f"  ✓ Completed in {result.duration_seconds:.2f}s")
+            print(f"  ✅ Completed in {result.duration_seconds:.2f}s")
             return
 
         metrics_summary = []
@@ -224,7 +224,7 @@ class BenchmarkOrchestrator:
         summary_text = (
             ", ".join(metrics_summary) if metrics_summary else "No key metrics"
         )
-        print(f"  ✓ Completed in {result.duration_seconds:.2f}s - {summary_text}")
+        print(f"  ✅ Completed in {result.duration_seconds:.2f}s - {summary_text}")
 
     def get_results_summary(self) -> Dict[str, Any]:
         """Get summary of benchmark results."""

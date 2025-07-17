@@ -240,7 +240,7 @@ class ReportGenerator:
         print("-" * 70)
 
         for result in results:
-            status_icon = "✓" if result.success else "✗"
+            status_icon = "✅" if result.success else "💥"
             status_text = "SUCCESS" if result.success else "FAILED"
 
             print(

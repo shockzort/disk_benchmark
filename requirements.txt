@@ -1,4 +1,5 @@
 # Core dependencies for disk benchmarking tool
 psutil>=5.8.0  # For system resource monitoring and safety checks
+colorama>=0.4.4  # For colored console output
 
 # System utilities required: hdparm, lsblk, lshw, fio, sysbench, ioping, mount, umount

@@ -58,9 +58,11 @@ pip3 install -r requirements.txt
 ### Dependencies
 
 **Python dependencies:**
+
 - psutil>=5.8.0 (system resource monitoring)
 
 **System utilities required:**
+
 - hdparm (disk timing and info) - **Core**
 - lsblk (block device info) - **Core**
 - lshw (hardware info) - **Core**
