@@ -178,6 +178,8 @@ def create_temp_dir(mount_point: str) -> str:
     from datetime import datetime
 
     logger = logging.getLogger(__name__)
+    temp_dir = ""
+
     try:
         # Create temporary directory in the mount point
         temp_dir_name = f"benchmark_temp_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
@@ -190,9 +192,7 @@ def create_temp_dir(mount_point: str) -> str:
 
     except Exception as e:
         logger.error(f"Failed to create temporary directory: {e}")
-        # Fallback to using mount point directly
-        logger.warning(f"Using mount point directly: {mount_point}")
-        return mount_point
+        return ""
 
 
 def cleanup_temp_dir(temp_dir_path: str) -> None:
@@ -322,6 +322,9 @@ def main():
 
         # Create temporary directory for benchmarks
         benchmark_dir = create_temp_dir(mount_point)
+        if benchmark_dir is None or benchmark_dir == "":
+            logger.error("Failed to create temporary directory for benchmarks")
+            sys.exit(1)
 
         atexit.register(lambda: cleanup_handler(benchmark_dir))
         interrupt_handler.register_cleanup(lambda: cleanup_handler(benchmark_dir))

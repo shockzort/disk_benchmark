@@ -3,6 +3,8 @@ Benchmark orchestrator for coordinating multiple benchmark tools.
 """
 
 import logging
+import os
+import shutil
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 
@@ -131,6 +133,9 @@ class BenchmarkOrchestrator:
                 )
                 self.results.append(error_result)
 
+            # Clean up benchmark directory after each test
+            self._cleanup_benchmark_directory(benchmark_dir, benchmark.name)
+
             print()  # Add spacing between tests
 
         logger.info(f"Completed {len(self.results)} benchmarks")
@@ -152,14 +157,18 @@ class BenchmarkOrchestrator:
         return self.results
 
     def run_specific_benchmark(
-        self, benchmark_name: str, device_path: str, temp_dir: str
+        self, benchmark_name: str, device_path: str, benchmark_dir: str
     ) -> Optional[BenchmarkResult]:
         """Run a specific benchmark by name."""
         for benchmark in self.benchmarks:
             if benchmark.name == benchmark_name:
                 logger.info(f"Running {benchmark_name} benchmark...")
-                result = benchmark.run(device_path, temp_dir)
+                result = benchmark.run(device_path, benchmark_dir)
                 self.results.append(result)
+
+                # Clean up benchmark directory after the test
+                self._cleanup_benchmark_directory(benchmark_dir, benchmark.name)
+
                 return result
 
         logger.error(f"Benchmark {benchmark_name} not found or not available")
@@ -257,6 +266,13 @@ class BenchmarkOrchestrator:
             ", ".join(metrics_summary) if metrics_summary else "No key metrics"
         )
         print(f"  ✅ Completed in {result.duration_seconds:.2f}s - {summary_text}")
+
+    def _cleanup_benchmark_directory(self, benchmark_dir: str):
+        """Clean up test files from benchmark directory."""
+        if os.path.exists(benchmark_dir):
+            shutil.rmtree(benchmark_dir)
+
+        os.mkdir(benchmark_dir)
 
     def get_results_summary(self) -> Dict[str, Any]:
         """Get summary of benchmark results."""
