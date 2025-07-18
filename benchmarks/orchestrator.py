@@ -134,7 +134,7 @@ class BenchmarkOrchestrator:
                 self.results.append(error_result)
 
             # Clean up benchmark directory after each test
-            self._cleanup_benchmark_directory(benchmark_dir, benchmark.name)
+            self._cleanup_benchmark_directory(benchmark_dir)
 
             print()  # Add spacing between tests
 
@@ -167,7 +167,7 @@ class BenchmarkOrchestrator:
                 self.results.append(result)
 
                 # Clean up benchmark directory after the test
-                self._cleanup_benchmark_directory(benchmark_dir, benchmark.name)
+                self._cleanup_benchmark_directory(benchmark_dir)
 
                 return result
 

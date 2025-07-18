@@ -26,7 +26,7 @@ class BenchmarkConfig:
 
     # fio benchmark settings - Write test
     fio_write_size: str = "512M"
-    fio_write_io_size: str = "10G"
+    fio_write_io_size: str = "1G"
     fio_write_blocksize: str = "4k"
     fio_write_ioengine: str = "libaio"
     fio_write_fsync: int = 10000
@@ -38,7 +38,7 @@ class BenchmarkConfig:
 
     # fio benchmark settings - Random read-write test
     fio_randrw_size: str = "512M"
-    fio_randrw_io_size: str = "10G"
+    fio_randrw_io_size: str = "1G"
     fio_randrw_blocksize: str = "4k"
     fio_randrw_ioengine: str = "libaio"
     fio_randrw_fsync: int = 1

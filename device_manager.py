@@ -56,7 +56,7 @@ class DeviceManager(ABC):
         device_name: str,
         mount_point: str,
         max_retries: int = 5,
-        retry_delay: float = 1.0,
+        retry_delay: float = 5.0,
     ) -> bool:
         """Safely unmount a device with retry logic and proper error handling.
 
