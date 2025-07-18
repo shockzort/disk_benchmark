@@ -64,7 +64,7 @@ class SafetyManager:
 
             # Check if we have enough memory for RAM disk
             if ramdisk_size_mb > 0:
-                if available_mb < ramdisk_size_mb * 1.5:  # 50% safety margin
+                if available_mb < ramdisk_size_mb:
                     self.errors.append(
                         f"Insufficient memory for RAM disk: {available_mb:.0f} MB available, {ramdisk_size_mb} MB required"
                     )
