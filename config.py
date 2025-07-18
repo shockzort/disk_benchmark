@@ -159,18 +159,37 @@ class ConfigManager:
         if self.config.dd_count <= 0:
             errors.append("dd_count must be positive")
 
-        # Validate fio settings
-        if self.config.fio_numjobs <= 0:
-            errors.append("fio_numjobs must be positive")
+        # Validate fio write test settings
+        if self.config.fio_write_numjobs <= 0:
+            errors.append("fio_write_numjobs must be positive")
 
-        if self.config.fio_runtime <= 0:
-            errors.append("fio_runtime must be positive")
+        if self.config.fio_write_runtime <= 0:
+            errors.append("fio_write_runtime must be positive")
 
-        if self.config.fio_iodepth <= 0:
-            errors.append("fio_iodepth must be positive")
+        if self.config.fio_write_iodepth <= 0:
+            errors.append("fio_write_iodepth must be positive")
 
-        if not 0 <= self.config.fio_rwmixread <= 100:
-            errors.append("fio_rwmixread must be between 0 and 100")
+        if self.config.fio_write_fsync <= 0:
+            errors.append("fio_write_fsync must be positive")
+
+        if self.config.fio_write_direct not in [0, 1]:
+            errors.append("fio_write_direct must be 0 or 1")
+
+        # Validate fio random read-write test settings
+        if self.config.fio_randrw_numjobs <= 0:
+            errors.append("fio_randrw_numjobs must be positive")
+
+        if self.config.fio_randrw_runtime <= 0:
+            errors.append("fio_randrw_runtime must be positive")
+
+        if self.config.fio_randrw_iodepth <= 0:
+            errors.append("fio_randrw_iodepth must be positive")
+
+        if self.config.fio_randrw_fsync <= 0:
+            errors.append("fio_randrw_fsync must be positive")
+
+        if self.config.fio_randrw_direct not in [0, 1]:
+            errors.append("fio_randrw_direct must be 0 or 1")
 
         # Validate sysbench settings
         if self.config.sysbench_file_num <= 0:
