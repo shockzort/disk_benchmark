@@ -11,7 +11,7 @@ from datetime import datetime
 from .base import BenchmarkModule, BenchmarkResult
 from .hdparm import HdparmBenchmark
 from .dd import DdBenchmark
-from .fio import FioBenchmark
+from .fio import FioWriteBenchmark, FioRandRWBenchmark
 from .sysbench import SysbenchBenchmark
 from .ioping import IopingBenchmark
 
@@ -41,7 +41,8 @@ class BenchmarkOrchestrator:
 
         # Advanced benchmarks (may not be available)
         advanced_benchmarks = [
-            FioBenchmark(),
+            FioWriteBenchmark(),
+            FioRandRWBenchmark(),
             SysbenchBenchmark(),
             IopingBenchmark(),
         ]
@@ -205,32 +206,25 @@ class BenchmarkOrchestrator:
 
         elif result.tool_name == "fio":
             # Handle write test results
-            if "write_test" in result.metrics:
-                write_metrics = result.metrics.get("write_test", {})
-                if "write_throughput_mbps" in write_metrics:
-                    metrics_summary.append(
-                        f"Write: {write_metrics['write_throughput_mbps']:.1f} MB/s"
-                    )
-                if "write_iops" in write_metrics:
-                    metrics_summary.append(f"W-IOPS: {write_metrics['write_iops']:.0f}")
-
+            if "write_throughput_mbps" in result.metrics:
+                metrics_summary.append(
+                    f"Write: {result.metrics['write_throughput_mbps']:.1f} MB/s"
+                )
+            if "write_iops" in result.metrics:
+                metrics_summary.append(f"W-IOPS: {result.metrics['write_iops']:.0f}")
             # Handle random read-write test results
-            if "randrw_test" in result.metrics:
-                randrw_metrics = result.metrics.get("randrw_test", {})
-                if "read_throughput_mbps" in randrw_metrics:
-                    metrics_summary.append(
-                        f"RandR: {randrw_metrics['read_throughput_mbps']:.1f} MB/s"
-                    )
-                if "write_throughput_mbps" in randrw_metrics:
-                    metrics_summary.append(
-                        f"RandW: {randrw_metrics['write_throughput_mbps']:.1f} MB/s"
-                    )
-                if "read_iops" in randrw_metrics:
-                    metrics_summary.append(f"R-IOPS: {randrw_metrics['read_iops']:.0f}")
-                if "write_iops" in randrw_metrics:
-                    metrics_summary.append(
-                        f"W-IOPS: {randrw_metrics['write_iops']:.0f}"
-                    )
+            if "read_throughput_mbps" in result.metrics:
+                metrics_summary.append(
+                    f"RandR: {result.metrics['read_throughput_mbps']:.1f} MB/s"
+                )
+            if "write_throughput_mbps" in result.metrics:
+                metrics_summary.append(
+                    f"RandW: {result.metrics['write_throughput_mbps']:.1f} MB/s"
+                )
+            if "read_iops" in result.metrics:
+                metrics_summary.append(f"R-IOPS: {result.metrics['read_iops']:.0f}")
+            if "write_iops" in result.metrics:
+                metrics_summary.append(f"W-IOPS: {result.metrics['write_iops']:.0f}")
 
         elif result.tool_name == "sysbench":
             if "read_throughput_mbps" in result.metrics:
