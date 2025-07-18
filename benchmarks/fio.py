@@ -4,7 +4,6 @@ fio benchmark module for flexible I/O testing.
 
 import json
 import time
-import os
 from typing import Dict, Any
 
 from utils import run_command, CommandExecutionError, check_command_exists

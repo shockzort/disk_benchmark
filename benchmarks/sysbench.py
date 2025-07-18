@@ -124,7 +124,8 @@ class SysbenchBenchmark(BenchmarkModule):
             try:
                 self._cleanup_sysbench_files(mount_point)
                 os.chdir(original_dir)
-            except:
+            except Exception as e:
+                self.logger.error(f"Error cleaning up sysbench files: {e}")
                 pass
 
             return self._create_result(
@@ -139,7 +140,8 @@ class SysbenchBenchmark(BenchmarkModule):
             # Restore directory on any error
             try:
                 os.chdir(original_dir)
-            except:
+            except Exception as e:
+                self.logger.error(f"Error restoring directory: {e}")
                 pass
 
             duration = time.time() - start_time

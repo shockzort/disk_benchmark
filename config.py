@@ -17,15 +17,15 @@ class BenchmarkConfig:
     """Configuration for benchmark execution."""
 
     # General settings
-    max_test_duration: int = 300  # seconds
+    max_test_duration: int = 1200  # seconds
 
     # dd benchmark settings
     dd_block_size: str = "1M"
-    dd_count: int = 100
+    dd_count: int = 1000
     dd_flags: str = "direct,fsync"
 
     # fio benchmark settings
-    fio_size: str = "256M"
+    fio_size: str = "512M"
     fio_numjobs: int = 4
     fio_runtime: int = 60
     fio_block_size: str = "4k"
@@ -37,12 +37,12 @@ class BenchmarkConfig:
     sysbench_file_num: int = 16
     sysbench_file_block_size: int = 16384
     sysbench_threads: int = 4
-    sysbench_max_time: int = 60
+    sysbench_max_time: int = 1200
 
     # ioping benchmark settings
     ioping_count: int = 100
     ioping_size: str = "4k"
-    ioping_deadline: int = 300
+    ioping_deadline: int = 1200
 
     # RAM disk settings
     ramdisk_size_percent: float = 0.75

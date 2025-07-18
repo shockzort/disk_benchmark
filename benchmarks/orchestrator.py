@@ -219,7 +219,9 @@ class BenchmarkOrchestrator:
             if "iops" in result.metrics:
                 metrics_summary.append(f"IOPS: {result.metrics['iops']:.0f}")
             if "throughput_mb_per_sec" in result.metrics:
-                metrics_summary.append(f"Throughput: {result.metrics['throughput_mb_per_sec']:.1f} MB/s")
+                metrics_summary.append(
+                    f"Throughput: {result.metrics['throughput_mb_per_sec']:.1f} MB/s"
+                )
 
         summary_text = (
             ", ".join(metrics_summary) if metrics_summary else "No key metrics"

@@ -4,7 +4,6 @@ ioping benchmark module for disk latency measurement.
 
 import re
 import time
-import os
 from typing import Dict, Any
 
 from utils import run_command, CommandExecutionError, check_command_exists
@@ -108,7 +107,7 @@ class IopingBenchmark(BenchmarkModule):
         # Example: "99 requests completed in 794.9 us, 396 KiB read, 124.5 k iops, 486.5 MiB/s"
         completed_pattern = r"(\d+)\s+requests\s+completed\s+in\s+([\d.]+)\s*(\w+),\s+(\d+)\s*(\w+)\s+read,\s+([\d.]+)\s*(\w*)\s+iops,\s+([\d.]+)\s*(\w+)/s"
         completed_match = re.search(completed_pattern, output)
-        
+
         if completed_match:
             requests_completed = int(completed_match.group(1))
             completion_time = float(completed_match.group(2))
@@ -119,29 +118,33 @@ class IopingBenchmark(BenchmarkModule):
             iops_multiplier = completed_match.group(7)  # k, M, etc.
             throughput_value = float(completed_match.group(8))
             throughput_unit = completed_match.group(9)  # MiB, etc.
-            
+
             metrics["requests_completed"] = requests_completed
             metrics["completion_time"] = completion_time
             metrics["completion_time_unit"] = time_unit
             metrics["data_read"] = data_amount
             metrics["data_read_unit"] = data_unit
-            
+
             # Convert IOPS to actual number
-            if iops_multiplier == 'k':
+            if iops_multiplier == "k":
                 iops_actual = iops_value * 1000
-            elif iops_multiplier == 'M':
+            elif iops_multiplier == "M":
                 iops_actual = iops_value * 1000000
             else:
                 iops_actual = iops_value
             metrics["iops"] = iops_actual
-            
+
             # Convert throughput to MB/s for consistency
             if throughput_unit == "MiB":
                 throughput_mb_s = throughput_value * 1.048576  # Convert MiB/s to MB/s
             elif throughput_unit == "KiB":
-                throughput_mb_s = throughput_value * 1.048576 / 1024  # Convert KiB/s to MB/s
+                throughput_mb_s = (
+                    throughput_value * 1.048576 / 1024
+                )  # Convert KiB/s to MB/s
             elif throughput_unit == "GiB":
-                throughput_mb_s = throughput_value * 1.048576 * 1024  # Convert GiB/s to MB/s
+                throughput_mb_s = (
+                    throughput_value * 1.048576 * 1024
+                )  # Convert GiB/s to MB/s
             else:
                 throughput_mb_s = throughput_value  # Assume MB/s
             metrics["throughput_mb_per_sec"] = throughput_mb_s
@@ -163,7 +166,9 @@ class IopingBenchmark(BenchmarkModule):
             metrics["latency_min_us"] = self._convert_to_microseconds(min_val, min_unit)
             metrics["latency_avg_us"] = self._convert_to_microseconds(avg_val, avg_unit)
             metrics["latency_max_us"] = self._convert_to_microseconds(max_val, max_unit)
-            metrics["latency_mdev_us"] = self._convert_to_microseconds(mdev_val, mdev_unit)
+            metrics["latency_mdev_us"] = self._convert_to_microseconds(
+                mdev_val, mdev_unit
+            )
 
         return metrics
 
