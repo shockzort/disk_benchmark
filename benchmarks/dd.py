@@ -169,7 +169,7 @@ class DdBenchmark(BenchmarkModule):
             elif unit == "B/s":
                 rate /= 1024 * 1024
 
-            metrics["transfer_rate_mb_per_sec"] = rate
+            metrics["transfer_rate_mbps"] = rate
 
         return metrics
 

@@ -168,22 +168,22 @@ class ReportGenerator:
         for result in results:
             if result.success and result.metrics:
                 if result.tool_name == "hdparm":
-                    if "buffered_reads_speed_mb_per_sec" in result.metrics:
+                    if "buffered_reads_speed_mbps" in result.metrics:
                         performance_metrics["hdparm_buffered_read_speed"] = (
-                            result.metrics["buffered_reads_speed_mb_per_sec"]
+                            result.metrics["buffered_reads_speed_mbps"]
                         )
                 elif result.tool_name == "dd":
-                    if "transfer_rate_mb_per_sec" in result.metrics:
+                    if "transfer_rate_mbps" in result.metrics:
                         performance_metrics["dd_write_speed"] = result.metrics[
-                            "transfer_rate_mb_per_sec"
+                            "transfer_rate_mbps"
                         ]
                 elif result.tool_name == "fio":
                     # Handle write test results
                     if "write_test" in result.metrics:
                         write_metrics = result.metrics.get("write_test", {})
-                        if "write_bandwidth_mbs" in write_metrics:
-                            performance_metrics["fio_write_bandwidth"] = write_metrics[
-                                "write_bandwidth_mbs"
+                        if "write_throughput_mbps" in write_metrics:
+                            performance_metrics["fio_write_throughput"] = write_metrics[
+                                "write_throughput_mbps"
                             ]
                         if "write_iops" in write_metrics:
                             performance_metrics["fio_write_iops"] = write_metrics[
@@ -197,13 +197,13 @@ class ReportGenerator:
                     # Handle random read-write test results
                     if "randrw_test" in result.metrics:
                         randrw_metrics = result.metrics.get("randrw_test", {})
-                        if "read_bandwidth_mbs" in randrw_metrics:
-                            performance_metrics["fio_randrw_read_bandwidth"] = (
-                                randrw_metrics["read_bandwidth_mbs"]
+                        if "read_throughput_mbps" in randrw_metrics:
+                            performance_metrics["fio_randrw_read_throughput"] = (
+                                randrw_metrics["read_throughput_mbps"]
                             )
-                        if "write_bandwidth_mbs" in randrw_metrics:
-                            performance_metrics["fio_randrw_write_bandwidth"] = (
-                                randrw_metrics["write_bandwidth_mbs"]
+                        if "write_throughput_mbps" in randrw_metrics:
+                            performance_metrics["fio_randrw_write_throughput"] = (
+                                randrw_metrics["write_throughput_mbps"]
                             )
                         if "read_iops" in randrw_metrics:
                             performance_metrics["fio_randrw_read_iops"] = (
@@ -218,17 +218,17 @@ class ReportGenerator:
                                 randrw_metrics["disk_util_percent"]
                             )
                 elif result.tool_name == "sysbench":
-                    if "read_throughput_mb_per_sec" in result.metrics:
+                    if "read_throughput_mbps" in result.metrics:
                         performance_metrics["sysbench_read_throughput"] = (
-                            result.metrics["read_throughput_mb_per_sec"]
+                            result.metrics["read_throughput_mbps"]
                         )
-                    if "write_throughput_mb_per_sec" in result.metrics:
+                    if "write_throughput_mbps" in result.metrics:
                         performance_metrics["sysbench_write_throughput"] = (
-                            result.metrics["write_throughput_mb_per_sec"]
+                            result.metrics["write_throughput_mbps"]
                         )
-                    if "total_throughput_mb_per_sec" in result.metrics:
+                    if "total_throughput_mbps" in result.metrics:
                         performance_metrics["sysbench_total_throughput"] = (
-                            result.metrics["total_throughput_mb_per_sec"]
+                            result.metrics["total_throughput_mbps"]
                         )
                     if "file_operations_per_sec" in result.metrics:
                         performance_metrics["sysbench_ops_per_sec"] = result.metrics[
@@ -241,9 +241,9 @@ class ReportGenerator:
                         ]
                     if "iops" in result.metrics:
                         performance_metrics["ioping_iops"] = result.metrics["iops"]
-                    if "throughput_mb_per_sec" in result.metrics:
+                    if "throughput_mbps" in result.metrics:
                         performance_metrics["ioping_throughput"] = result.metrics[
-                            "throughput_mb_per_sec"
+                            "throughput_mbps"
                         ]
 
         return {
@@ -285,20 +285,20 @@ class ReportGenerator:
                 metrics_printed = False
 
                 if result.tool_name == "hdparm":
-                    if "buffered_reads_speed_mb_per_sec" in result.metrics:
+                    if "buffered_reads_speed_mbps" in result.metrics:
                         print(
-                            f"  • Buffered reads: {result.metrics['buffered_reads_speed_mb_per_sec']:.2f} MB/s"
+                            f"  • Buffered reads: {result.metrics['buffered_reads_speed_mbps']:.2f} MB/s"
                         )
                         metrics_printed = True
-                    if "cached_reads_speed_mb_per_sec" in result.metrics:
+                    if "cached_reads_speed_mbps" in result.metrics:
                         print(
-                            f"  • Cached reads: {result.metrics['cached_reads_speed_mb_per_sec']:.2f} MB/s"
+                            f"  • Cached reads: {result.metrics['cached_reads_speed_mbps']:.2f} MB/s"
                         )
                         metrics_printed = True
                 elif result.tool_name == "dd":
-                    if "transfer_rate_mb_per_sec" in result.metrics:
+                    if "transfer_rate_mbps" in result.metrics:
                         print(
-                            f"  • Write speed: {result.metrics['transfer_rate_mb_per_sec']:.2f} MB/s"
+                            f"  • Write speed: {result.metrics['transfer_rate_mbps']:.2f} MB/s"
                         )
                         metrics_printed = True
                 elif result.tool_name == "fio":
@@ -306,9 +306,9 @@ class ReportGenerator:
                     if "write_test" in result.metrics:
                         write_metrics = result.metrics.get("write_test", {})
                         print("  • Write Test:")
-                        if "write_bandwidth_mbs" in write_metrics:
+                        if "write_throughput_mbps" in write_metrics:
                             print(
-                                f"    - Write bandwidth: {write_metrics['write_bandwidth_mbs']:.2f} MB/s"
+                                f"    - Write throughput: {write_metrics['write_throughput_mbps']:.2f} MB/s"
                             )
                             metrics_printed = True
                         if "write_iops" in write_metrics:
@@ -326,14 +326,14 @@ class ReportGenerator:
                     if "randrw_test" in result.metrics:
                         randrw_metrics = result.metrics.get("randrw_test", {})
                         print("  • Random Read-Write Test:")
-                        if "read_bandwidth_mbs" in randrw_metrics:
+                        if "read_throughput_mbps" in randrw_metrics:
                             print(
-                                f"    - Read bandwidth: {randrw_metrics['read_bandwidth_mbs']:.2f} MB/s"
+                                f"    - Read throughput: {randrw_metrics['read_throughput_mbps']:.2f} MB/s"
                             )
                             metrics_printed = True
-                        if "write_bandwidth_mbs" in randrw_metrics:
+                        if "write_throughput_mbps" in randrw_metrics:
                             print(
-                                f"    - Write bandwidth: {randrw_metrics['write_bandwidth_mbs']:.2f} MB/s"
+                                f"    - Write throughput: {randrw_metrics['write_throughput_mbps']:.2f} MB/s"
                             )
                             metrics_printed = True
                         if "read_iops" in randrw_metrics:
@@ -350,14 +350,14 @@ class ReportGenerator:
                             )
                             metrics_printed = True
                 elif result.tool_name == "sysbench":
-                    if "read_throughput_mb_per_sec" in result.metrics:
+                    if "read_throughput_mbps" in result.metrics:
                         print(
-                            f"  • Read throughput: {result.metrics['read_throughput_mb_per_sec']:.2f} MB/s"
+                            f"  • Read throughput: {result.metrics['read_throughput_mbps']:.2f} MB/s"
                         )
                         metrics_printed = True
-                    if "write_throughput_mb_per_sec" in result.metrics:
+                    if "write_throughput_mbps" in result.metrics:
                         print(
-                            f"  • Write throughput: {result.metrics['write_throughput_mb_per_sec']:.2f} MB/s"
+                            f"  • Write throughput: {result.metrics['write_throughput_mbps']:.2f} MB/s"
                         )
                         metrics_printed = True
                 elif result.tool_name == "ioping":
@@ -384,9 +384,9 @@ class ReportGenerator:
                     if "iops" in result.metrics:
                         print(f"  • IOPS: {result.metrics['iops']:.0f}")
                         metrics_printed = True
-                    if "throughput_mb_per_sec" in result.metrics:
+                    if "throughput_mbps" in result.metrics:
                         print(
-                            f"  • Throughput: {result.metrics['throughput_mb_per_sec']:.2f} MB/s"
+                            f"  • Throughput: {result.metrics['throughput_mbps']:.2f} MB/s"
                         )
                         metrics_printed = True
                 if not metrics_printed:
@@ -405,7 +405,7 @@ class ReportGenerator:
                     print(f"  {self._format_metric_name(key)}: {value:.2f} μs")
                 elif "iops" in key:
                     print(f"  {self._format_metric_name(key)}: {value:.0f} IOPS")
-                elif "bandwidth" in key or "speed" in key or "throughput" in key:
+                elif "throughput" in key or "speed" in key or "throughput" in key:
                     print(f"  {self._format_metric_name(key)}: {value:.2f} MB/s")
                 elif "ops_per_sec" in key:
                     print(f"  {self._format_metric_name(key)}: {value:.2f} ops/s")
@@ -565,9 +565,9 @@ class ReportGenerator:
             lines.append("  Write Test Results:")
             write_metrics = metrics["write_test"]
             if isinstance(write_metrics, dict):
-                if "write_bandwidth_mbs" in write_metrics:
+                if "write_throughput_mbps" in write_metrics:
                     lines.append(
-                        f"    Write Bandwidth: {write_metrics['write_bandwidth_mbs']:.2f} MB/s"
+                        f"    Write throughput: {write_metrics['write_throughput_mbps']:.2f} MB/s"
                     )
                 if "write_iops" in write_metrics:
                     lines.append(f"    Write IOPS: {write_metrics['write_iops']:.0f}")
@@ -603,13 +603,13 @@ class ReportGenerator:
             lines.append("  Random Read-Write Test Results:")
             randrw_metrics = metrics["randrw_test"]
             if isinstance(randrw_metrics, dict):
-                if "read_bandwidth_mbs" in randrw_metrics:
+                if "read_throughput_mbps" in randrw_metrics:
                     lines.append(
-                        f"    Read Bandwidth: {randrw_metrics['read_bandwidth_mbs']:.2f} MB/s"
+                        f"    Read throughput: {randrw_metrics['read_throughput_mbps']:.2f} MB/s"
                     )
-                if "write_bandwidth_mbs" in randrw_metrics:
+                if "write_throughput_mbps" in randrw_metrics:
                     lines.append(
-                        f"    Write Bandwidth: {randrw_metrics['write_bandwidth_mbs']:.2f} MB/s"
+                        f"    Write throughput: {randrw_metrics['write_throughput_mbps']:.2f} MB/s"
                     )
                 if "read_iops" in randrw_metrics:
                     lines.append(f"    Read IOPS: {randrw_metrics['read_iops']:.0f}")

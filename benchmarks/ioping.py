@@ -147,7 +147,7 @@ class IopingBenchmark(BenchmarkModule):
                 )  # Convert GiB/s to MB/s
             else:
                 throughput_mb_s = throughput_value  # Assume MB/s
-            metrics["throughput_mb_per_sec"] = throughput_mb_s
+            metrics["throughput_mbps"] = throughput_mb_s
             metrics["throughput_original"] = throughput_value
             metrics["throughput_unit"] = throughput_unit
 

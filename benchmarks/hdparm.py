@@ -83,7 +83,7 @@ class HdparmBenchmark(BenchmarkModule):
         if cached_match:
             metrics["cached_reads_mb"] = int(cached_match.group(1))
             metrics["cached_reads_time_sec"] = float(cached_match.group(2))
-            metrics["cached_reads_speed_mb_per_sec"] = float(cached_match.group(3))
+            metrics["cached_reads_speed_mbps"] = float(cached_match.group(3))
 
         # Parse buffered disk reads
         buffered_match = re.search(
@@ -93,7 +93,7 @@ class HdparmBenchmark(BenchmarkModule):
         if buffered_match:
             metrics["buffered_reads_mb"] = int(buffered_match.group(1))
             metrics["buffered_reads_time_sec"] = float(buffered_match.group(2))
-            metrics["buffered_reads_speed_mb_per_sec"] = float(buffered_match.group(3))
+            metrics["buffered_reads_speed_mbps"] = float(buffered_match.group(3))
 
         return metrics
 

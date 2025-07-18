@@ -179,28 +179,28 @@ class BenchmarkOrchestrator:
 
         # Extract key metrics for different tools
         if result.tool_name == "hdparm":
-            if "buffered_reads_speed_mb_per_sec" in result.metrics:
+            if "buffered_reads_speed_mbps" in result.metrics:
                 metrics_summary.append(
-                    f"Read: {result.metrics['buffered_reads_speed_mb_per_sec']:.1f} MB/s"
+                    f"Read: {result.metrics['buffered_reads_speed_mbps']:.1f} MB/s"
                 )
-            if "cached_reads_speed_mb_per_sec" in result.metrics:
+            if "cached_reads_speed_mbps" in result.metrics:
                 metrics_summary.append(
-                    f"Cached: {result.metrics['cached_reads_speed_mb_per_sec']:.1f} MB/s"
+                    f"Cached: {result.metrics['cached_reads_speed_mbps']:.1f} MB/s"
                 )
 
         elif result.tool_name == "dd":
-            if "transfer_rate_mb_per_sec" in result.metrics:
+            if "transfer_rate_mbps" in result.metrics:
                 metrics_summary.append(
-                    f"Write: {result.metrics['transfer_rate_mb_per_sec']:.1f} MB/s"
+                    f"Write: {result.metrics['transfer_rate_mbps']:.1f} MB/s"
                 )
 
         elif result.tool_name == "fio":
             # Handle write test results
             if "write_test" in result.metrics:
                 write_metrics = result.metrics.get("write_test", {})
-                if "write_bandwidth_mbs" in write_metrics:
+                if "write_throughput_mbps" in write_metrics:
                     metrics_summary.append(
-                        f"Write: {write_metrics['write_bandwidth_mbs']:.1f} MB/s"
+                        f"Write: {write_metrics['write_throughput_mbps']:.1f} MB/s"
                     )
                 if "write_iops" in write_metrics:
                     metrics_summary.append(f"W-IOPS: {write_metrics['write_iops']:.0f}")
@@ -208,13 +208,13 @@ class BenchmarkOrchestrator:
             # Handle random read-write test results
             if "randrw_test" in result.metrics:
                 randrw_metrics = result.metrics.get("randrw_test", {})
-                if "read_bandwidth_mbs" in randrw_metrics:
+                if "read_throughput_mbps" in randrw_metrics:
                     metrics_summary.append(
-                        f"RandR: {randrw_metrics['read_bandwidth_mbs']:.1f} MB/s"
+                        f"RandR: {randrw_metrics['read_throughput_mbps']:.1f} MB/s"
                     )
-                if "write_bandwidth_mbs" in randrw_metrics:
+                if "write_throughput_mbps" in randrw_metrics:
                     metrics_summary.append(
-                        f"RandW: {randrw_metrics['write_bandwidth_mbs']:.1f} MB/s"
+                        f"RandW: {randrw_metrics['write_throughput_mbps']:.1f} MB/s"
                     )
                 if "read_iops" in randrw_metrics:
                     metrics_summary.append(f"R-IOPS: {randrw_metrics['read_iops']:.0f}")
@@ -224,17 +224,17 @@ class BenchmarkOrchestrator:
                     )
 
         elif result.tool_name == "sysbench":
-            if "read_throughput_mb_per_sec" in result.metrics:
+            if "read_throughput_mbps" in result.metrics:
                 metrics_summary.append(
-                    f"Read: {result.metrics['read_throughput_mb_per_sec']:.1f} MB/s"
+                    f"Read: {result.metrics['read_throughput_mbps']:.1f} MB/s"
                 )
-            if "write_throughput_mb_per_sec" in result.metrics:
+            if "write_throughput_mbps" in result.metrics:
                 metrics_summary.append(
-                    f"Write: {result.metrics['write_throughput_mb_per_sec']:.1f} MB/s"
+                    f"Write: {result.metrics['write_throughput_mbps']:.1f} MB/s"
                 )
-            if "total_throughput_mb_per_sec" in result.metrics:
+            if "total_throughput_mbps" in result.metrics:
                 metrics_summary.append(
-                    f"Total: {result.metrics['total_throughput_mb_per_sec']:.1f} MB/s"
+                    f"Total: {result.metrics['total_throughput_mbps']:.1f} MB/s"
                 )
             elif "file_operations_per_sec" in result.metrics:
                 metrics_summary.append(
@@ -248,9 +248,9 @@ class BenchmarkOrchestrator:
                 )
             if "iops" in result.metrics:
                 metrics_summary.append(f"IOPS: {result.metrics['iops']:.0f}")
-            if "throughput_mb_per_sec" in result.metrics:
+            if "throughput_mbps" in result.metrics:
                 metrics_summary.append(
-                    f"Throughput: {result.metrics['throughput_mb_per_sec']:.1f} MB/s"
+                    f"Throughput: {result.metrics['throughput_mbps']:.1f} MB/s"
                 )
 
         summary_text = (

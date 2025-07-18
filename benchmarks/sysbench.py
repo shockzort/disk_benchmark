@@ -211,7 +211,7 @@ class SysbenchBenchmark(BenchmarkModule):
                 read_throughput_match.group(1)
             )
             # Convert to MB/s for consistency (1 MiB = 1.048576 MB)
-            metrics["read_throughput_mb_per_sec"] = (
+            metrics["read_throughput_mbps"] = (
                 float(read_throughput_match.group(1)) * 1.048576
             )
 
@@ -223,7 +223,7 @@ class SysbenchBenchmark(BenchmarkModule):
                 write_throughput_match.group(1)
             )
             # Convert to MB/s for consistency (1 MiB = 1.048576 MB)
-            metrics["write_throughput_mb_per_sec"] = (
+            metrics["write_throughput_mbps"] = (
                 float(write_throughput_match.group(1)) * 1.048576
             )
 
