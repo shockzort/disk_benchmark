@@ -227,16 +227,6 @@ class SysbenchBenchmark(BenchmarkModule):
                 float(write_throughput_match.group(1)) * 1.048576
             )
 
-        # Calculate total throughput if both read and write are available
-        if (
-            "read_throughput_mb_per_sec" in metrics
-            and "write_throughput_mb_per_sec" in metrics
-        ):
-            metrics["total_throughput_mb_per_sec"] = (
-                metrics["read_throughput_mb_per_sec"]
-                + metrics["write_throughput_mb_per_sec"]
-            )
-
         # Calculate total file operations per second
         total_ops = 0
         if "reads_per_sec" in metrics:

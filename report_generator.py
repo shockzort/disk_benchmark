@@ -339,11 +339,6 @@ class ReportGenerator:
                             f"  • Write throughput: {result.metrics['write_throughput_mb_per_sec']:.2f} MB/s"
                         )
                         metrics_printed = True
-                    if "total_throughput_mb_per_sec" in result.metrics:
-                        print(
-                            f"  • Total throughput: {result.metrics['total_throughput_mb_per_sec']:.2f} MB/s"
-                        )
-                        metrics_printed = True
                 elif result.tool_name == "ioping":
                     if "latency_avg_us" in result.metrics:
                         print(
