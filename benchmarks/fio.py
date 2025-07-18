@@ -308,8 +308,9 @@ class FioBenchmark(BenchmarkModule):
                 if "read" in job:
                     read_stats = job["read"]
                     metrics["read_iops"] = read_stats.get("iops", 0)
-                    metrics["read_bandwidth_kbs"] = read_stats.get("bw", 0)
-                    metrics["read_bandwidth_mbs"] = read_stats.get("bw", 0) / 1024
+                    metrics["read_bandwidth_mbs"] = (
+                        read_stats.get("bw_bytes", 0) / 1024 / 1024
+                    )
 
                     if "lat_ns" in read_stats:
                         metrics["read_lat_mean_ns"] = read_stats["lat_ns"].get(
@@ -323,8 +324,9 @@ class FioBenchmark(BenchmarkModule):
                 if "write" in job:
                     write_stats = job["write"]
                     metrics["write_iops"] = write_stats.get("iops", 0)
-                    metrics["write_bandwidth_kbs"] = write_stats.get("bw", 0)
-                    metrics["write_bandwidth_mbs"] = write_stats.get("bw", 0) / 1024
+                    metrics["write_bandwidth_mbs"] = (
+                        write_stats.get("bw_bytes", 0) / 1024 / 1024
+                    )
 
                     if "lat_ns" in write_stats:
                         metrics["write_lat_mean_ns"] = write_stats["lat_ns"].get(
