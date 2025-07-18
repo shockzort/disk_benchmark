@@ -24,13 +24,29 @@ class BenchmarkConfig:
     dd_count: int = 1000
     dd_flags: str = "direct,fsync"
 
-    # fio benchmark settings
-    fio_size: str = "512M"
-    fio_numjobs: int = 4
-    fio_runtime: int = 60
-    fio_block_size: str = "4k"
-    fio_iodepth: int = 32
-    fio_rwmixread: int = 70
+    # fio benchmark settings - Write test
+    fio_write_size: str = "512M"
+    fio_write_io_size: str = "10G"
+    fio_write_blocksize: str = "4k"
+    fio_write_ioengine: str = "libaio"
+    fio_write_fsync: int = 10000
+    fio_write_iodepth: int = 32
+    fio_write_direct: int = 1
+    fio_write_numjobs: int = 4
+    fio_write_runtime: int = 300
+    fio_write_group_reporting: bool = True
+
+    # fio benchmark settings - Random read-write test
+    fio_randrw_size: str = "512M"
+    fio_randrw_io_size: str = "10G"
+    fio_randrw_blocksize: str = "4k"
+    fio_randrw_ioengine: str = "libaio"
+    fio_randrw_fsync: int = 1
+    fio_randrw_iodepth: int = 1
+    fio_randrw_direct: int = 1
+    fio_randrw_numjobs: int = 4
+    fio_randrw_runtime: int = 600
+    fio_randrw_group_reporting: bool = True
 
     # sysbench benchmark settings
     sysbench_file_total_size: str = "1G"
