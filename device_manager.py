@@ -9,6 +9,7 @@ import os
 import stat
 import logging
 import atexit
+import time
 from datetime import datetime
 from typing import Dict, Optional, Any
 from abc import ABC, abstractmethod
@@ -30,7 +31,6 @@ class DeviceManager(ABC):
     def __init__(self):
         self.mount_point: Optional[str] = None
         self.is_mounted: bool = False
-        self.needs_cleanup: bool = False
 
     @abstractmethod
     def setup(self) -> bool:
@@ -51,6 +51,111 @@ class DeviceManager(ABC):
         """Get the current mount point."""
         return self.mount_point
 
+    def _safe_unmount(
+        self,
+        device_name: str,
+        mount_point: str,
+        max_retries: int = 5,
+        retry_delay: float = 1.0,
+    ) -> bool:
+        """Safely unmount a device with retry logic and proper error handling.
+
+        Args:
+            device_name: Name of the device for logging (e.g., '/dev/sda1' or 'RAM disk')
+            mount_point: Mount point to unmount
+            max_retries: Maximum number of unmount attempts
+            retry_delay: Delay between retry attempts in seconds
+
+        Returns:
+            True if unmount was successful, False otherwise
+        """
+        if not mount_point:
+            logger.warning(f"No mount point specified for {device_name}")
+            return False
+
+        logger.info(f"Unmounting {device_name} from {mount_point}")
+
+        for attempt in range(max_retries):
+            try:
+                # Try to sync filesystem buffers first
+                try:
+                    run_command(["sync"])
+                    logger.debug(f"Filesystem sync completed for {device_name}")
+                except CommandExecutionError as e:
+                    logger.warning(f"Sync failed for {device_name}: {e}")
+
+                # Attempt to unmount
+                run_command(["umount", mount_point])
+                self.is_mounted = False
+                logger.info(f"Successfully unmounted {device_name}")
+
+                # Remove mount point directory
+                if os.path.exists(mount_point):
+                    try:
+                        os.rmdir(mount_point)
+                        logger.info(f"Removed mount point {mount_point}")
+                    except OSError as e:
+                        logger.warning(
+                            f"Could not remove mount point {mount_point}: {e}"
+                        )
+
+                return True
+
+            except CommandExecutionError as e:
+                attempt_num = attempt + 1
+                logger.warning(
+                    f"Unmount attempt {attempt_num}/{max_retries} failed for {device_name}: {e}"
+                )
+
+                if attempt < max_retries - 1:
+                    # Check if mount point is still busy
+                    try:
+                        stdout, _, _ = run_command(
+                            ["lsof", "+D", mount_point], check_return_code=False
+                        )
+                        if stdout.strip():
+                            logger.info(
+                                f"Files still open in {mount_point}, processes using it:"
+                            )
+                            logger.info(stdout)
+                    except CommandExecutionError:
+                        # lsof might not be available, that's OK
+                        pass
+
+                    logger.info(f"Waiting {retry_delay} seconds before retry...")
+                    time.sleep(retry_delay)
+
+                    # Try force unmount on final attempts
+                    if attempt >= max_retries - 2:
+                        logger.info(f"Attempting force unmount for {device_name}")
+                        try:
+                            run_command(["umount", "-f", mount_point])
+                            self.is_mounted = False
+                            logger.info(f"Force unmount successful for {device_name}")
+
+                            # Remove mount point directory
+                            if os.path.exists(mount_point):
+                                try:
+                                    os.rmdir(mount_point)
+                                    logger.info(f"Removed mount point {mount_point}")
+                                except OSError as e:
+                                    logger.warning(
+                                        f"Could not remove mount point {mount_point}: {e}"
+                                    )
+
+                            return True
+                        except CommandExecutionError as force_e:
+                            logger.warning(
+                                f"Force unmount also failed for {device_name}: {force_e}"
+                            )
+                else:
+                    logger.error(
+                        f"All {max_retries} unmount attempts failed for {device_name}"
+                    )
+                    return False
+
+        return False
+
 
 class PhysicalDeviceManager(DeviceManager):
     """Manager for physical storage devices."""
@@ -58,7 +163,6 @@ class PhysicalDeviceManager(DeviceManager):
     def __init__(self, device_path: str):
         super().__init__()
         self.device_path = device_path
-        self.was_already_mounted = False
         self.original_mount_point = None
 
     def validate_device(self) -> bool:
@@ -99,7 +203,6 @@ class PhysicalDeviceManager(DeviceManager):
             logger.info(
                 f"Device {self.device_path} is already mounted at {mount_point}"
             )
-            self.was_already_mounted = True
             self.original_mount_point = mount_point
             self.mount_point = mount_point
             self.is_mounted = True
@@ -117,7 +220,6 @@ class PhysicalDeviceManager(DeviceManager):
 
                 logger.info(f"Device {self.device_path} mounted at {self.mount_point}")
                 self.is_mounted = True
-                self.needs_cleanup = True
 
                 # Register cleanup
                 atexit.register(self.cleanup)
@@ -133,22 +235,9 @@ class PhysicalDeviceManager(DeviceManager):
         """Clean up the physical device after benchmarking."""
         success = True
 
-        if self.is_mounted and not self.was_already_mounted and self.needs_cleanup:
-            try:
-                logger.info(f"Unmounting device {self.device_path}")
-                run_command(["umount", self.mount_point])
-                self.is_mounted = False
+        if self.is_mounted:
+            success = self._safe_unmount(self.device_path, self.mount_point)
 
-                # Remove mount point directory
-                if self.mount_point and os.path.exists(self.mount_point):
-                    os.rmdir(self.mount_point)
-                    logger.info(f"Removed mount point {self.mount_point}")
-
-            except (CommandExecutionError, OSError) as e:
-                logger.error(f"Failed to unmount device {self.device_path}: {e}")
-                success = False
-
-        self.needs_cleanup = False
         return success
 
     def get_device_info(self) -> Dict[str, Any]:
@@ -240,7 +329,6 @@ class RAMDiskManager(DeviceManager):
 
             logger.info(f"RAM disk created and mounted at {self.mount_point}")
             self.is_mounted = True
-            self.needs_cleanup = True
 
             # Register cleanup
             atexit.register(self.cleanup)
@@ -256,22 +344,9 @@ class RAMDiskManager(DeviceManager):
         """Clean up the RAM disk after benchmarking."""
         success = True
 
-        if self.is_mounted and self.needs_cleanup:
-            try:
-                logger.info("Unmounting RAM disk")
-                run_command(["umount", self.mount_point])
-                self.is_mounted = False
+        if self.is_mounted:
+            success = self._safe_unmount("RAM disk", self.mount_point)
 
-                # Remove mount point directory
-                if self.mount_point and os.path.exists(self.mount_point):
-                    os.rmdir(self.mount_point)
-                    logger.info(f"Removed mount point {self.mount_point}")
-
-            except (CommandExecutionError, OSError) as e:
-                logger.error(f"Failed to unmount RAM disk: {e}")
-                success = False
-
-        self.needs_cleanup = False
         return success
 
     def get_device_info(self) -> Dict[str, Any]:

@@ -188,17 +188,17 @@ class ReportGenerator:
                         ]
                 elif result.tool_name == "sysbench":
                     if "read_throughput_mb_per_sec" in result.metrics:
-                        performance_metrics["sysbench_read_throughput"] = result.metrics[
-                            "read_throughput_mb_per_sec"
-                        ]
+                        performance_metrics["sysbench_read_throughput"] = (
+                            result.metrics["read_throughput_mb_per_sec"]
+                        )
                     if "write_throughput_mb_per_sec" in result.metrics:
-                        performance_metrics["sysbench_write_throughput"] = result.metrics[
-                            "write_throughput_mb_per_sec"
-                        ]
+                        performance_metrics["sysbench_write_throughput"] = (
+                            result.metrics["write_throughput_mb_per_sec"]
+                        )
                     if "total_throughput_mb_per_sec" in result.metrics:
-                        performance_metrics["sysbench_total_throughput"] = result.metrics[
-                            "total_throughput_mb_per_sec"
-                        ]
+                        performance_metrics["sysbench_total_throughput"] = (
+                            result.metrics["total_throughput_mb_per_sec"]
+                        )
                     if "file_operations_per_sec" in result.metrics:
                         performance_metrics["sysbench_ops_per_sec"] = result.metrics[
                             "file_operations_per_sec"
@@ -211,7 +211,9 @@ class ReportGenerator:
                     if "iops" in result.metrics:
                         performance_metrics["ioping_iops"] = result.metrics["iops"]
                     if "throughput_mb_per_sec" in result.metrics:
-                        performance_metrics["ioping_throughput"] = result.metrics["throughput_mb_per_sec"]
+                        performance_metrics["ioping_throughput"] = result.metrics[
+                            "throughput_mb_per_sec"
+                        ]
 
         return {
             "total_benchmarks": total_benchmarks,
@@ -262,20 +264,12 @@ class ReportGenerator:
                             f"  • Cached reads: {result.metrics['cached_reads_speed_mb_per_sec']:.2f} MB/s"
                         )
                         metrics_printed = True
-
                 elif result.tool_name == "dd":
                     if "transfer_rate_mb_per_sec" in result.metrics:
                         print(
                             f"  • Write speed: {result.metrics['transfer_rate_mb_per_sec']:.2f} MB/s"
                         )
                         metrics_printed = True
-                    if "bytes_transferred" in result.metrics:
-                        mb_transferred = result.metrics["bytes_transferred"] / (
-                            1024 * 1024
-                        )
-                        print(f"  • Data transferred: {mb_transferred:.1f} MB")
-                        metrics_printed = True
-
                 elif result.tool_name == "fio":
                     if "read_bandwidth_mbs" in result.metrics:
                         print(
@@ -293,17 +287,6 @@ class ReportGenerator:
                     if "write_iops" in result.metrics:
                         print(f"  • Write IOPS: {result.metrics['write_iops']:.0f}")
                         metrics_printed = True
-                    if "read_latency_avg_us" in result.metrics:
-                        print(
-                            f"  • Read latency (avg): {result.metrics['read_latency_avg_us']:.2f} μs"
-                        )
-                        metrics_printed = True
-                    if "write_latency_avg_us" in result.metrics:
-                        print(
-                            f"  • Write latency (avg): {result.metrics['write_latency_avg_us']:.2f} μs"
-                        )
-                        metrics_printed = True
-
                 elif result.tool_name == "sysbench":
                     if "read_throughput_mb_per_sec" in result.metrics:
                         print(
@@ -320,27 +303,6 @@ class ReportGenerator:
                             f"  • Total throughput: {result.metrics['total_throughput_mb_per_sec']:.2f} MB/s"
                         )
                         metrics_printed = True
-                    if "reads_per_sec" in result.metrics:
-                        print(
-                            f"  • Read operations: {result.metrics['reads_per_sec']:.0f}/s"
-                        )
-                        metrics_printed = True
-                    if "writes_per_sec" in result.metrics:
-                        print(
-                            f"  • Write operations: {result.metrics['writes_per_sec']:.0f}/s"
-                        )
-                        metrics_printed = True
-                    if "fsyncs_per_sec" in result.metrics:
-                        print(
-                            f"  • Fsync operations: {result.metrics['fsyncs_per_sec']:.0f}/s"
-                        )
-                        metrics_printed = True
-                    if "file_operations_per_sec" in result.metrics:
-                        print(
-                            f"  • Total file operations: {result.metrics['file_operations_per_sec']:.0f}/s"
-                        )
-                        metrics_printed = True
-
                 elif result.tool_name == "ioping":
                     if "latency_avg_us" in result.metrics:
                         print(
@@ -366,18 +328,12 @@ class ReportGenerator:
                         print(f"  • IOPS: {result.metrics['iops']:.0f}")
                         metrics_printed = True
                     if "throughput_mb_per_sec" in result.metrics:
-                        print(f"  • Throughput: {result.metrics['throughput_mb_per_sec']:.2f} MB/s")
+                        print(
+                            f"  • Throughput: {result.metrics['throughput_mb_per_sec']:.2f} MB/s"
+                        )
                         metrics_printed = True
-                    if "requests_completed" in result.metrics:
-                        print(f"  • Requests completed: {result.metrics['requests_completed']}")
-                        metrics_printed = True
-                    if "completion_time" in result.metrics and "completion_time_unit" in result.metrics:
-                        print(f"  • Completion time: {result.metrics['completion_time']:.2f} {result.metrics['completion_time_unit']}")
-                        metrics_printed = True
-
                 if not metrics_printed:
                     print("  • No detailed metrics available")
-
             elif not result.success:
                 print(f"  • Error: {result.error_message or 'Unknown error'}")
 

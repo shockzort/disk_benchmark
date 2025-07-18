@@ -30,12 +30,13 @@ from config import ConfigManager
 def setup_logging(log_level=logging.INFO):
     """Set up logging to both console and file with colored output."""
     try:
-        from colorama import init, Fore, Style
+        from colorama import init
+
         init(autoreset=True)  # Initialize colorama
         colorama_available = True
     except ImportError:
         colorama_available = False
-    
+
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     log_filename = f"disk_benchmark_{timestamp}.log"
 
@@ -47,50 +48,51 @@ def setup_logging(log_level=logging.INFO):
     # Create a custom formatter for console with colors
     class ColoredFormatter(logging.Formatter):
         """Custom formatter with colors for different log levels using colorama."""
-        
+
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             if colorama_available:
                 from colorama import Fore, Style
+
                 self.COLORS = {
-                    'DEBUG': Fore.CYAN,
-                    'INFO': Fore.GREEN,
-                    'WARNING': Fore.YELLOW,
-                    'ERROR': Fore.RED,
-                    'CRITICAL': Fore.MAGENTA + Style.BRIGHT,
+                    "DEBUG": Fore.CYAN,
+                    "INFO": Fore.GREEN,
+                    "WARNING": Fore.YELLOW,
+                    "ERROR": Fore.RED,
+                    "CRITICAL": Fore.MAGENTA + Style.BRIGHT,
                 }
                 self.RESET = Style.RESET_ALL
             else:
                 # Fallback to ANSI codes if colorama not available
                 self.COLORS = {
-                    'DEBUG': '\033[36m',
-                    'INFO': '\033[32m',
-                    'WARNING': '\033[33m',
-                    'ERROR': '\033[31m',
-                    'CRITICAL': '\033[35m',
+                    "DEBUG": "\033[36m",
+                    "INFO": "\033[32m",
+                    "WARNING": "\033[33m",
+                    "ERROR": "\033[31m",
+                    "CRITICAL": "\033[35m",
                 }
-                self.RESET = '\033[0m'
+                self.RESET = "\033[0m"
 
         def format(self, record):
-            log_color = self.COLORS.get(record.levelname, '')
+            log_color = self.COLORS.get(record.levelname, "")
             reset = self.RESET
-            
+
             # Apply color to level name and logger name
             colored_levelname = f"{log_color}{record.levelname}{reset}"
             colored_name = f"{log_color}{record.name}{reset}"
-            
+
             # Create a copy of the record to avoid modifying the original
             new_record = logging.makeLogRecord(record.__dict__)
             new_record.levelname = colored_levelname
             new_record.name = colored_name
-            
+
             return super().format(new_record)
 
     # File formatter (no colors)
     file_formatter = logging.Formatter(
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
-    
+
     # Console formatter (with colors)
     console_formatter = ColoredFormatter(
         "%(levelname)s %(asctime)s - %(name)s - %(message)s"
@@ -99,7 +101,7 @@ def setup_logging(log_level=logging.INFO):
     # Create handlers
     file_handler = logging.FileHandler(log_file)
     file_handler.setFormatter(file_formatter)
-    
+
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setFormatter(console_formatter)
 
