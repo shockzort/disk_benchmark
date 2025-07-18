@@ -253,7 +253,7 @@ class FioBenchmark(BenchmarkModule):
                 )
 
             metrics = self._parse_fio_output(stdout)
-            metrics["test_type"] = "random_write"
+            metrics["test_type"] = "randrw_test"
 
             return self._create_result(
                 device_path=device_path,

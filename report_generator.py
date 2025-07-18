@@ -179,43 +179,41 @@ class ReportGenerator:
                         ]
                 elif result.tool_name == "fio":
                     # Handle write test results
-                    if "write_test" in result.metrics:
-                        write_metrics = result.metrics.get("write_test", {})
-                        if "write_throughput_mbps" in write_metrics:
-                            performance_metrics["fio_write_throughput"] = write_metrics[
-                                "write_throughput_mbps"
-                            ]
-                        if "write_iops" in write_metrics:
-                            performance_metrics["fio_write_iops"] = write_metrics[
+                    if result.metrics["test_type"] == "write_test":
+                        if "write_throughput_mbps" in result.metrics:
+                            performance_metrics["fio_write_throughput"] = (
+                                result.metrics["write_throughput_mbps"]
+                            )
+                        if "write_iops" in result.metrics:
+                            performance_metrics["fio_write_iops"] = result.metrics[
                                 "write_iops"
                             ]
-                        if "disk_util_percent" in write_metrics:
-                            performance_metrics["fio_write_disk_util"] = write_metrics[
+                        if "disk_util_percent" in result.metrics:
+                            performance_metrics["fio_write_disk_util"] = result.metrics[
                                 "disk_util_percent"
                             ]
 
                     # Handle random read-write test results
-                    if "randrw_test" in result.metrics:
-                        randrw_metrics = result.metrics.get("randrw_test", {})
-                        if "read_throughput_mbps" in randrw_metrics:
+                    if result.metrics["test_type"] == "randrw_test":
+                        if "read_throughput_mbps" in result.metrics:
                             performance_metrics["fio_randrw_read_throughput"] = (
-                                randrw_metrics["read_throughput_mbps"]
+                                result.metrics["read_throughput_mbps"]
                             )
-                        if "write_throughput_mbps" in randrw_metrics:
+                        if "write_throughput_mbps" in result.metrics:
                             performance_metrics["fio_randrw_write_throughput"] = (
-                                randrw_metrics["write_throughput_mbps"]
+                                result.metrics["write_throughput_mbps"]
                             )
-                        if "read_iops" in randrw_metrics:
+                        if "read_iops" in result.metrics:
                             performance_metrics["fio_randrw_read_iops"] = (
-                                randrw_metrics["read_iops"]
+                                result.metrics["read_iops"]
                             )
-                        if "write_iops" in randrw_metrics:
+                        if "write_iops" in result.metrics:
                             performance_metrics["fio_randrw_write_iops"] = (
-                                randrw_metrics["write_iops"]
+                                result.metrics["write_iops"]
                             )
-                        if "disk_util_percent" in randrw_metrics:
+                        if "disk_util_percent" in result.metrics:
                             performance_metrics["fio_randrw_disk_util"] = (
-                                randrw_metrics["disk_util_percent"]
+                                result.metrics["disk_util_percent"]
                             )
                 elif result.tool_name == "sysbench":
                     if "read_throughput_mbps" in result.metrics:
@@ -303,50 +301,48 @@ class ReportGenerator:
                         metrics_printed = True
                 elif result.tool_name == "fio":
                     # Handle write test results
-                    if "write_test" in result.metrics:
-                        write_metrics = result.metrics.get("write_test", {})
+                    if result.metrics["test_type"] == "write_test":
                         print("  • Write Test:")
-                        if "write_throughput_mbps" in write_metrics:
+                        if "write_throughput_mbps" in result.metrics:
                             print(
-                                f"    - Write throughput: {write_metrics['write_throughput_mbps']:.2f} MB/s"
+                                f"    - Write throughput: {result.metrics['write_throughput_mbps']:.2f} MB/s"
                             )
                             metrics_printed = True
-                        if "write_iops" in write_metrics:
+                        if "write_iops" in result.metrics:
                             print(
-                                f"    - Write IOPS: {write_metrics['write_iops']:.0f}"
+                                f"    - Write IOPS: {result.metrics['write_iops']:.0f}"
                             )
                             metrics_printed = True
-                        if "disk_util_percent" in write_metrics:
+                        if "disk_util_percent" in result.metrics:
                             print(
-                                f"    - Disk Utilization: {write_metrics['disk_util_percent']:.1f}%"
+                                f"    - Disk Utilization: {result.metrics['disk_util_percent']:.1f}%"
                             )
                             metrics_printed = True
 
                     # Handle random read-write test results
-                    if "randrw_test" in result.metrics:
-                        randrw_metrics = result.metrics.get("randrw_test", {})
+                    if result.metrics["test_type"] == "randrw_test":
                         print("  • Random Read-Write Test:")
-                        if "read_throughput_mbps" in randrw_metrics:
+                        if "read_throughput_mbps" in result.metrics:
                             print(
-                                f"    - Read throughput: {randrw_metrics['read_throughput_mbps']:.2f} MB/s"
+                                f"    - Read throughput: {result.metrics['read_throughput_mbps']:.2f} MB/s"
                             )
                             metrics_printed = True
-                        if "write_throughput_mbps" in randrw_metrics:
+                        if "write_throughput_mbps" in result.metrics:
                             print(
-                                f"    - Write throughput: {randrw_metrics['write_throughput_mbps']:.2f} MB/s"
+                                f"    - Write throughput: {result.metrics['write_throughput_mbps']:.2f} MB/s"
                             )
                             metrics_printed = True
-                        if "read_iops" in randrw_metrics:
-                            print(f"    - Read IOPS: {randrw_metrics['read_iops']:.0f}")
+                        if "read_iops" in result.metrics:
+                            print(f"    - Read IOPS: {result.metrics['read_iops']:.0f}")
                             metrics_printed = True
-                        if "write_iops" in randrw_metrics:
+                        if "write_iops" in result.metrics:
                             print(
-                                f"    - Write IOPS: {randrw_metrics['write_iops']:.0f}"
+                                f"    - Write IOPS: {result.metrics['write_iops']:.0f}"
                             )
                             metrics_printed = True
-                        if "disk_util_percent" in randrw_metrics:
+                        if "disk_util_percent" in result.metrics:
                             print(
-                                f"    - Disk Utilization: {randrw_metrics['disk_util_percent']:.1f}%"
+                                f"    - Disk Utilization: {result.metrics['disk_util_percent']:.1f}%"
                             )
                             metrics_printed = True
                 elif result.tool_name == "sysbench":
@@ -561,124 +557,53 @@ class ReportGenerator:
         lines = []
 
         # Handle write test metrics
-        if "write_test" in metrics:
+        if metrics["test_type"] == "write_test":
             lines.append("  Write Test Results:")
-            write_metrics = metrics["write_test"]
-            if isinstance(write_metrics, dict):
-                if "write_throughput_mbps" in write_metrics:
-                    lines.append(
-                        f"    Write throughput: {write_metrics['write_throughput_mbps']:.2f} MB/s"
-                    )
-                if "write_iops" in write_metrics:
-                    lines.append(f"    Write IOPS: {write_metrics['write_iops']:.0f}")
-                if "write_lat_mean_ns" in write_metrics:
-                    lines.append(
-                        f"    Write Latency (mean): {write_metrics['write_lat_mean_ns']:.0f} ns"
-                    )
-                if "write_lat_stddev_ns" in write_metrics:
-                    lines.append(
-                        f"    Write Latency (stddev): {write_metrics['write_lat_stddev_ns']:.0f} ns"
-                    )
-                if "cpu_user_percent" in write_metrics:
-                    lines.append(
-                        f"    CPU User: {write_metrics['cpu_user_percent']:.1f}%"
-                    )
-                if "cpu_system_percent" in write_metrics:
-                    lines.append(
-                        f"    CPU System: {write_metrics['cpu_system_percent']:.1f}%"
-                    )
-                if "disk_util_percent" in write_metrics:
-                    lines.append(
-                        f"    Disk Utilization: {write_metrics['disk_util_percent']:.1f}%"
-                    )
-                if "job_runtime_ms" in write_metrics:
-                    lines.append(
-                        f"    Job Runtime: {write_metrics['job_runtime_ms']:.0f} ms"
-                    )
-            else:
-                lines.append(f"    {write_metrics}")
 
         # Handle random read-write test metrics
-        if "randrw_test" in metrics:
+        if metrics["test_type"] == "randrw_test":
             lines.append("  Random Read-Write Test Results:")
-            randrw_metrics = metrics["randrw_test"]
-            if isinstance(randrw_metrics, dict):
-                if "read_throughput_mbps" in randrw_metrics:
-                    lines.append(
-                        f"    Read throughput: {randrw_metrics['read_throughput_mbps']:.2f} MB/s"
-                    )
-                if "write_throughput_mbps" in randrw_metrics:
-                    lines.append(
-                        f"    Write throughput: {randrw_metrics['write_throughput_mbps']:.2f} MB/s"
-                    )
-                if "read_iops" in randrw_metrics:
-                    lines.append(f"    Read IOPS: {randrw_metrics['read_iops']:.0f}")
-                if "write_iops" in randrw_metrics:
-                    lines.append(f"    Write IOPS: {randrw_metrics['write_iops']:.0f}")
-                if "read_lat_mean_ns" in randrw_metrics:
-                    lines.append(
-                        f"    Read Latency (mean): {randrw_metrics['read_lat_mean_ns']:.0f} ns"
-                    )
-                if "write_lat_mean_ns" in randrw_metrics:
-                    lines.append(
-                        f"    Write Latency (mean): {randrw_metrics['write_lat_mean_ns']:.0f} ns"
-                    )
-                if "read_lat_stddev_ns" in randrw_metrics:
-                    lines.append(
-                        f"    Read Latency (stddev): {randrw_metrics['read_lat_stddev_ns']:.0f} ns"
-                    )
-                if "write_lat_stddev_ns" in randrw_metrics:
-                    lines.append(
-                        f"    Write Latency (stddev): {randrw_metrics['write_lat_stddev_ns']:.0f} ns"
-                    )
-                if "cpu_user_percent" in randrw_metrics:
-                    lines.append(
-                        f"    CPU User: {randrw_metrics['cpu_user_percent']:.1f}%"
-                    )
-                if "cpu_system_percent" in randrw_metrics:
-                    lines.append(
-                        f"    CPU System: {randrw_metrics['cpu_system_percent']:.1f}%"
-                    )
-                if "disk_util_percent" in randrw_metrics:
-                    lines.append(
-                        f"    Disk Utilization: {randrw_metrics['disk_util_percent']:.1f}%"
-                    )
-                if "job_runtime_ms" in randrw_metrics:
-                    lines.append(
-                        f"    Job Runtime: {randrw_metrics['job_runtime_ms']:.0f} ms"
-                    )
-            else:
-                lines.append(f"    {randrw_metrics}")
 
-        # Handle test summary
-        if "test_summary" in metrics:
-            lines.append("  Test Summary:")
-            summary = metrics["test_summary"]
-            if isinstance(summary, dict):
-                if "write_test_success" in summary:
-                    lines.append(
-                        f"    Write Test Success: {summary['write_test_success']}"
-                    )
-                if "randrw_test_success" in summary:
-                    lines.append(
-                        f"    Random RW Test Success: {summary['randrw_test_success']}"
-                    )
-                if "overall_success" in summary:
-                    lines.append(f"    Overall Success: {summary['overall_success']}")
-                if "total_duration" in summary:
-                    lines.append(
-                        f"    Total Duration: {summary['total_duration']:.2f} seconds"
-                    )
-            else:
-                lines.append(f"    {summary}")
-
-        # Handle any other metrics that aren't part of the main test results
-        excluded_keys = {"write_test", "randrw_test", "test_summary"}
-        other_metrics = {k: v for k, v in metrics.items() if k not in excluded_keys}
-
-        if other_metrics:
-            lines.append("  Other Metrics:")
-            for key, value in other_metrics.items():
-                lines.append(f"    {key}: {value}")
+        if isinstance(metrics, dict):
+            if "read_throughput_mbps" in metrics:
+                lines.append(
+                    f"    Read throughput: {metrics['read_throughput_mbps']:.2f} MB/s"
+                )
+            if "write_throughput_mbps" in metrics:
+                lines.append(
+                    f"    Write throughput: {metrics['write_throughput_mbps']:.2f} MB/s"
+                )
+            if "read_iops" in metrics:
+                lines.append(f"    Read IOPS: {metrics['read_iops']:.0f}")
+            if "write_iops" in metrics:
+                lines.append(f"    Write IOPS: {metrics['write_iops']:.0f}")
+            if "read_lat_mean_ns" in metrics:
+                lines.append(
+                    f"    Read Latency (mean): {metrics['read_lat_mean_ns']:.0f} ns"
+                )
+            if "write_lat_mean_ns" in metrics:
+                lines.append(
+                    f"    Write Latency (mean): {metrics['write_lat_mean_ns']:.0f} ns"
+                )
+            if "read_lat_stddev_ns" in metrics:
+                lines.append(
+                    f"    Read Latency (stddev): {metrics['read_lat_stddev_ns']:.0f} ns"
+                )
+            if "write_lat_stddev_ns" in metrics:
+                lines.append(
+                    f"    Write Latency (stddev): {metrics['write_lat_stddev_ns']:.0f} ns"
+                )
+            if "cpu_user_percent" in metrics:
+                lines.append(f"    CPU User: {metrics['cpu_user_percent']:.1f}%")
+            if "cpu_system_percent" in metrics:
+                lines.append(f"    CPU System: {metrics['cpu_system_percent']:.1f}%")
+            if "disk_util_percent" in metrics:
+                lines.append(
+                    f"    Disk Utilization: {metrics['disk_util_percent']:.1f}%"
+                )
+            if "job_runtime_ms" in metrics:
+                lines.append(f"    Job Runtime: {metrics['job_runtime_ms']:.0f} ms")
+        else:
+            lines.append(f"    {metrics}")
 
         return lines
