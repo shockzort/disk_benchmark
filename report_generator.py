@@ -10,7 +10,6 @@ from typing import List, Dict, Any
 
 from benchmarks.base import BenchmarkResult
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -26,6 +25,7 @@ class ReportGenerator:
         results: List[BenchmarkResult],
         device_info: Dict[str, Any],
         sys_info: Dict[str, Any],
+        config=None,
     ) -> str:
         """Generate a comprehensive benchmark report."""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -33,7 +33,9 @@ class ReportGenerator:
         report_path = self.report_dir / report_filename
 
         # Generate report content
-        report_content = self._generate_text_report(results, device_info, sys_info)
+        report_content = self._generate_text_report(
+            results, device_info, sys_info, config
+        )
 
         # Write report to file
         with open(report_path, "w") as f:
@@ -47,6 +49,7 @@ class ReportGenerator:
         results: List[BenchmarkResult],
         device_info: Dict[str, Any],
         sys_info: Dict[str, Any],
+        config=None,
     ) -> str:
         """Generate a JSON benchmark report."""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -61,6 +64,7 @@ class ReportGenerator:
             },
             "system_info": sys_info,
             "device_info": device_info,
+            "configuration": config.to_dict() if config else None,
             "results": [result.to_dict() for result in results],
             "summary": self._generate_summary(results),
         }
@@ -77,6 +81,7 @@ class ReportGenerator:
         results: List[BenchmarkResult],
         device_info: Dict[str, Any],
         sys_info: Dict[str, Any],
+        config=None,
     ) -> str:
         """Generate text format report."""
         lines = []
@@ -98,15 +103,15 @@ class ReportGenerator:
         # Device Information
         lines.append("DEVICE INFORMATION")
         lines.append("-" * 40)
-        for key, value in device_info.items():
-            if key == "df_info" and value:
-                lines.append("Disk Usage:")
-                for line in value.split("\n"):
-                    if line.strip():
-                        lines.append(f"  {line}")
-            else:
-                lines.append(f"{key}: {value}")
+        lines.extend(self._format_device_info(device_info))
         lines.append("")
+
+        # Configuration
+        if config:
+            lines.append("BENCHMARK CONFIGURATION")
+            lines.append("-" * 40)
+            lines.append(config.to_human_readable())
+            lines.append("")
 
         # Benchmark Results Summary
         summary = self._generate_summary(results)
@@ -412,3 +417,123 @@ class ReportGenerator:
         formatted = formatted.replace("Avg Latency Us", "Avg Latency (μs)")
 
         return formatted
+
+    def _format_device_info(self, device_info: Dict[str, Any]) -> List[str]:
+        """Format device information for human-readable output."""
+        lines = []
+
+        # Device path and basic info
+        if "device_path" in device_info:
+            lines.append(f"Device Path: {device_info['device_path']}")
+        if "mount_point" in device_info:
+            lines.append(f"Mount Point: {device_info['mount_point']}")
+
+        # Disk usage information
+        if "df_info" in device_info and device_info["df_info"]:
+            lines.append("Disk Usage:")
+            df_lines = device_info["df_info"].strip().split("\n")
+            for line in df_lines:
+                if line.strip():
+                    lines.append(f"  {line}")
+
+        # Hardware information from lshw
+        if "lshw_info" in device_info and device_info["lshw_info"]:
+            lines.append("Hardware Information:")
+            try:
+                import json
+
+                lshw_data = json.loads(device_info["lshw_info"])
+                if isinstance(lshw_data, list) and len(lshw_data) > 0:
+                    device = lshw_data[0]
+
+                    if "description" in device:
+                        lines.append(f"  Description: {device['description']}")
+                    if "product" in device:
+                        lines.append(f"  Product: {device['product']}")
+                    if "vendor" in device:
+                        lines.append(f"  Vendor: {device['vendor']}")
+                    if "version" in device:
+                        lines.append(f"  Version: {device['version']}")
+                    if "serial" in device:
+                        lines.append(f"  Serial: {device['serial']}")
+                    if "size" in device:
+                        size_bytes = device["size"]
+                        size_gb = size_bytes / (1024**3)
+                        lines.append(f"  Size: {size_gb:.2f} GB ({size_bytes:,} bytes)")
+                    if "configuration" in device:
+                        config = device["configuration"]
+                        if "logicalsectorsize" in config:
+                            lines.append(
+                                f"  Logical Sector Size: {config['logicalsectorsize']} bytes"
+                            )
+                        if "sectorsize" in config:
+                            lines.append(
+                                f"  Physical Sector Size: {config['sectorsize']} bytes"
+                            )
+                        if "signature" in config:
+                            lines.append(f"  Disk Signature: {config['signature']}")
+                else:
+                    lines.append("  No detailed hardware information available")
+            except (json.JSONDecodeError, KeyError, TypeError):
+                lines.append("  Hardware information format not recognized")
+
+        # Block device information from lsblk
+        if "lsblk_info" in device_info and device_info["lsblk_info"]:
+            lines.append("Block Device Information:")
+            try:
+                import json
+
+                lsblk_data = json.loads(device_info["lsblk_info"])
+                if "blockdevices" in lsblk_data:
+                    for device in lsblk_data["blockdevices"]:
+                        if "name" in device:
+                            lines.append(f"  Device: /dev/{device['name']}")
+                        if "size" in device:
+                            lines.append(f"  Size: {device['size']}")
+                        if "type" in device:
+                            lines.append(f"  Type: {device['type']}")
+                        if "mountpoint" in device and device["mountpoint"]:
+                            lines.append(f"  Mount Point: {device['mountpoint']}")
+                        if "fstype" in device and device["fstype"]:
+                            lines.append(f"  Filesystem: {device['fstype']}")
+                        if "model" in device and device["model"]:
+                            lines.append(f"  Model: {device['model']}")
+                        if "serial" in device and device["serial"]:
+                            lines.append(f"  Serial: {device['serial']}")
+                        if "children" in device:
+                            for child in device["children"]:
+                                lines.append(
+                                    f"    Partition: /dev/{child.get('name', 'unknown')}"
+                                )
+                                if "size" in child:
+                                    lines.append(f"      Size: {child['size']}")
+                                if "mountpoint" in child and child["mountpoint"]:
+                                    lines.append(
+                                        f"      Mount Point: {child['mountpoint']}"
+                                    )
+                                if "fstype" in child and child["fstype"]:
+                                    lines.append(f"      Filesystem: {child['fstype']}")
+                else:
+                    lines.append("  No block device information available")
+            except (json.JSONDecodeError, KeyError, TypeError):
+                lines.append("  Block device information format not recognized")
+
+        # Any other device information
+        excluded_keys = {
+            "device_path",
+            "mount_point",
+            "df_info",
+            "lshw_info",
+            "lsblk_info",
+        }
+        other_info = {k: v for k, v in device_info.items() if k not in excluded_keys}
+
+        if other_info:
+            lines.append("Additional Information:")
+            for key, value in other_info.items():
+                if isinstance(value, str) and value.strip():
+                    lines.append(f"  {key.replace('_', ' ').title()}: {value}")
+                elif not isinstance(value, str):
+                    lines.append(f"  {key.replace('_', ' ').title()}: {value}")
+
+        return lines

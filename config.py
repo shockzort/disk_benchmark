@@ -17,7 +17,7 @@ class BenchmarkConfig:
     """Configuration for benchmark execution."""
 
     # General settings
-    max_test_duration: int = 1200  # seconds
+    max_test_duration: int = 300  # seconds
 
     # dd benchmark settings
     dd_block_size: str = "1M"
@@ -33,7 +33,7 @@ class BenchmarkConfig:
     fio_write_iodepth: int = 32
     fio_write_direct: int = 1
     fio_write_numjobs: int = 4
-    fio_write_runtime: int = 300
+    fio_write_runtime: int = 60
     fio_write_group_reporting: bool = True
 
     # fio benchmark settings - Random read-write test
@@ -45,7 +45,7 @@ class BenchmarkConfig:
     fio_randrw_iodepth: int = 1
     fio_randrw_direct: int = 1
     fio_randrw_numjobs: int = 4
-    fio_randrw_runtime: int = 600
+    fio_randrw_runtime: int = 60
     fio_randrw_group_reporting: bool = True
 
     # sysbench benchmark settings
@@ -53,12 +53,12 @@ class BenchmarkConfig:
     sysbench_file_num: int = 16
     sysbench_file_block_size: int = 16384
     sysbench_threads: int = 4
-    sysbench_max_time: int = 1200
+    sysbench_max_time: int = 60
 
     # ioping benchmark settings
     ioping_count: int = 100
     ioping_size: str = "4k"
-    ioping_deadline: int = 1200
+    ioping_deadline: int = 300
 
     # RAM disk settings
     ramdisk_size_percent: float = 0.75
@@ -82,6 +82,100 @@ class BenchmarkConfig:
     def from_dict(cls, data: Dict[str, Any]) -> "BenchmarkConfig":
         """Create from dictionary."""
         return cls(**data)
+
+    def to_human_readable(self) -> str:
+        """Convert configuration to human-readable format."""
+        lines = []
+
+        # General settings
+        lines.append("GENERAL SETTINGS")
+        lines.append("-" * 20)
+        lines.append(f"Max test duration: {self.max_test_duration} seconds")
+        lines.append("")
+
+        # DD benchmark settings
+        lines.append("DD BENCHMARK SETTINGS")
+        lines.append("-" * 25)
+        lines.append(f"Block size: {self.dd_block_size}")
+        lines.append(f"Count: {self.dd_count}")
+        lines.append(f"Flags: {self.dd_flags}")
+        lines.append("")
+
+        # FIO Write test settings
+        lines.append("FIO WRITE TEST SETTINGS")
+        lines.append("-" * 27)
+        lines.append(f"File size: {self.fio_write_size}")
+        lines.append(f"I/O size: {self.fio_write_io_size}")
+        lines.append(f"Block size: {self.fio_write_blocksize}")
+        lines.append(f"I/O engine: {self.fio_write_ioengine}")
+        lines.append(f"Fsync frequency: {self.fio_write_fsync}")
+        lines.append(f"I/O depth: {self.fio_write_iodepth}")
+        lines.append(f"Direct I/O: {'Yes' if self.fio_write_direct else 'No'}")
+        lines.append(f"Number of jobs: {self.fio_write_numjobs}")
+        lines.append(f"Runtime: {self.fio_write_runtime} seconds")
+        lines.append("")
+
+        # FIO Random read-write test settings
+        lines.append("FIO RANDOM READ-WRITE TEST SETTINGS")
+        lines.append("-" * 38)
+        lines.append(f"File size: {self.fio_randrw_size}")
+        lines.append(f"I/O size: {self.fio_randrw_io_size}")
+        lines.append(f"Block size: {self.fio_randrw_blocksize}")
+        lines.append(f"I/O engine: {self.fio_randrw_ioengine}")
+        lines.append(f"Fsync frequency: {self.fio_randrw_fsync}")
+        lines.append(f"I/O depth: {self.fio_randrw_iodepth}")
+        lines.append(f"Direct I/O: {'Yes' if self.fio_randrw_direct else 'No'}")
+        lines.append(f"Number of jobs: {self.fio_randrw_numjobs}")
+        lines.append(f"Runtime: {self.fio_randrw_runtime} seconds")
+        lines.append("")
+
+        # Sysbench settings
+        lines.append("SYSBENCH SETTINGS")
+        lines.append("-" * 18)
+        lines.append(f"File total size: {self.sysbench_file_total_size}")
+        lines.append(f"Number of files: {self.sysbench_file_num}")
+        lines.append(f"File block size: {self.sysbench_file_block_size} bytes")
+        lines.append(f"Threads: {self.sysbench_threads}")
+        lines.append(f"Max time: {self.sysbench_max_time} seconds")
+        lines.append("")
+
+        # Ioping settings
+        lines.append("IOPING SETTINGS")
+        lines.append("-" * 16)
+        lines.append(f"Count: {self.ioping_count}")
+        lines.append(f"Request size: {self.ioping_size}")
+        lines.append(f"Deadline: {self.ioping_deadline} seconds")
+        lines.append("")
+
+        # RAM disk settings
+        lines.append("RAM DISK SETTINGS")
+        lines.append("-" * 18)
+        lines.append(
+            f"Size percentage: {self.ramdisk_size_percent * 100:.1f}% of available RAM"
+        )
+        lines.append(f"Maximum size: {self.ramdisk_max_size_gb} GB")
+        lines.append("")
+
+        # Safety settings
+        lines.append("SAFETY SETTINGS")
+        lines.append("-" * 16)
+        lines.append(f"Minimum free space: {self.min_free_space_mb} MB")
+        lines.append(f"Max CPU threshold: {self.max_cpu_threshold}%")
+        lines.append(f"Max load threshold: {self.max_load_threshold}")
+        lines.append("")
+
+        # Output settings
+        lines.append("OUTPUT SETTINGS")
+        lines.append("-" * 16)
+        lines.append(
+            f"Generate JSON report: {'Yes' if self.generate_json_report else 'No'}"
+        )
+        lines.append(
+            f"Generate text report: {'Yes' if self.generate_text_report else 'No'}"
+        )
+        lines.append(f"Detailed logging: {'Yes' if self.detailed_logging else 'No'}")
+
+        return "\n".join(lines)
 
 
 class ConfigManager:

@@ -17,7 +17,6 @@ from pathlib import Path
 from utils import validate_dependencies, get_system_info
 from device_manager import create_device_manager
 from benchmarks.orchestrator import BenchmarkOrchestrator
-from report_generator import ReportGenerator
 from safety import (
     SafetyManager,
     InterruptHandler,
@@ -249,7 +248,23 @@ def main():
 
         # Get device information
         device_info = device_manager.get_device_info()
-        logger.info(f"Device info: {device_info}")
+        logger.info("Device information:")
+
+        # Log device info in a more readable format
+        from report_generator import ReportGenerator
+
+        report_gen = ReportGenerator()
+        device_info_lines = report_gen._format_device_info(device_info)
+        for line in device_info_lines:
+            logger.info(line)
+
+        # Also print formatted device info to console
+        print(f"\n{'='*60}")
+        print("DEVICE INFORMATION")
+        print(f"{'='*60}")
+        for line in device_info_lines:
+            print(line)
+        print(f"{'='*60}")
 
         # Get mount point for benchmarking
         mount_point = device_manager.get_mount_point()
@@ -324,10 +339,10 @@ def main():
 
         # Generate detailed reports
         text_report_path = report_generator.generate_report(
-            results, enhanced_device_info, sys_info
+            results, enhanced_device_info, sys_info, config
         )
         json_report_path = report_generator.generate_json_report(
-            results, enhanced_device_info, sys_info
+            results, enhanced_device_info, sys_info, config
         )
 
         print("\nReports generated:")

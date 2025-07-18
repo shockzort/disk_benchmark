@@ -79,6 +79,24 @@ class BenchmarkOrchestrator:
         print(f"Tests: {', '.join([b.name for b in self.benchmarks])}")
         print()
 
+        # Log configuration details
+        if self.config:
+            logger.info("Current benchmark configuration:")
+            config_text = self.config.to_human_readable()
+            for line in config_text.split("\n"):
+                if line.strip():
+                    logger.info(line)
+
+            print(f"{'='*60}")
+            print("BENCHMARK CONFIGURATION")
+            print(f"{'='*60}")
+            print(config_text)
+            print(f"{'='*60}")
+        else:
+            logger.info("Using default configuration (no config file loaded)")
+            print("Using default configuration")
+            print()
+
         self.results = []
 
         for i, benchmark in enumerate(self.benchmarks, 1):
