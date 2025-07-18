@@ -346,6 +346,15 @@ class FioBenchmark(BenchmarkModule):
                 if "sys_cpu" in job:
                     metrics["cpu_system_percent"] = job["sys_cpu"]
 
+            # Extract disk utilization metrics
+            if "disk_util" in fio_data:
+                disk_util = fio_data["disk_util"]
+                if isinstance(disk_util, list) and len(disk_util) > 0:
+                    # Take the first disk's utilization stats
+                    disk_stats = disk_util[0]
+                    if "util" in disk_stats:
+                        metrics["disk_util_percent"] = disk_stats["util"]
+
         except (json.JSONDecodeError, KeyError) as e:
             self.logger.warning(f"Could not parse fio JSON output: {e}")
             # Fall back to text parsing if JSON fails
