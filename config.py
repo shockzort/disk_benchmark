@@ -17,7 +17,7 @@ class BenchmarkConfig:
     """Configuration for benchmark execution."""
 
     # General settings
-    max_test_duration: int = 300  # seconds
+    max_test_duration: int = 600  # seconds
 
     # dd benchmark settings
     dd_block_size: str = "1M"

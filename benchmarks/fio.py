@@ -179,7 +179,7 @@ class FioBenchmark(BenchmarkModule):
 
             # Parse fio JSON output
             metrics = self._parse_fio_output(stdout)
-            metrics["test_type"] = "write"
+            metrics["test_type"] = "write_test"
 
             return self._create_result(
                 device_path=device_path,
@@ -265,7 +265,7 @@ class FioBenchmark(BenchmarkModule):
 
             # Parse fio JSON output
             metrics = self._parse_fio_output(stdout)
-            metrics["test_type"] = "randrw"
+            metrics["test_type"] = "randrw_test"
 
             return self._create_result(
                 device_path=device_path,

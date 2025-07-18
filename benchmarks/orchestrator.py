@@ -83,9 +83,6 @@ class BenchmarkOrchestrator:
         if self.config:
             logger.info("Current benchmark configuration:")
             config_text = self.config.to_human_readable()
-            for line in config_text.split("\n"):
-                if line.strip():
-                    logger.info(line)
 
             print(f"{'='*60}")
             print("BENCHMARK CONFIGURATION")
