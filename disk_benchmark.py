@@ -161,11 +161,63 @@ def check_privileges():
         sys.exit(1)
 
 
-def cleanup_handler():
+def cleanup_handler(benchmark_dir=None):
     """Cleanup handler for normal exit."""
     logger = logging.getLogger(__name__)
     logger.info("Performing cleanup...")
     # Device cleanup is handled by individual device managers via atexit
+
+    # Clean up temporary directory if provided
+    if benchmark_dir:
+        cleanup_temp_dir(benchmark_dir)
+
+
+def create_temp_dir(mount_point: str) -> str:
+    """Create temporary directory for benchmark files."""
+    import os
+    from datetime import datetime
+
+    logger = logging.getLogger(__name__)
+    try:
+        # Create temporary directory in the mount point
+        temp_dir_name = f"benchmark_temp_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        temp_dir = os.path.join(mount_point, temp_dir_name)
+        os.makedirs(temp_dir, exist_ok=True)
+
+        logger.info(f"Created temporary directory for benchmarks: {temp_dir}")
+        print(f"Using temporary directory: {temp_dir}")
+        return temp_dir
+
+    except Exception as e:
+        logger.error(f"Failed to create temporary directory: {e}")
+        # Fallback to using mount point directly
+        logger.warning(f"Using mount point directly: {mount_point}")
+        return mount_point
+
+
+def cleanup_temp_dir(temp_dir_path: str) -> None:
+    """Clean up temporary directory and all its contents."""
+    import os
+    import shutil
+
+    logger = logging.getLogger(__name__)
+    if not temp_dir_path:
+        return
+
+    try:
+        # Only remove if it's actually a temp directory we created
+        if os.path.basename(temp_dir_path).startswith("benchmark_temp_"):
+            if os.path.exists(temp_dir_path):
+                shutil.rmtree(temp_dir_path)
+                logger.info(f"Cleaned up temporary directory: {temp_dir_path}")
+                print(f"Cleaned up temporary directory: {temp_dir_path}")
+            else:
+                logger.debug(f"Temporary directory already removed: {temp_dir_path}")
+        else:
+            logger.debug(f"Skipping cleanup of non-temp directory: {temp_dir_path}")
+
+    except Exception as e:
+        logger.error(f"Failed to clean up temporary directory {temp_dir_path}: {e}")
 
 
 # Signal handling is now done by InterruptHandler class
@@ -210,10 +262,6 @@ def main():
     interrupt_handler = InterruptHandler()
     resource_monitor = ResourceMonitor()
 
-    # Register cleanup handlers
-    atexit.register(cleanup_handler)
-    interrupt_handler.register_cleanup(cleanup_handler)
-
     logger.info("Starting disk benchmark")
     logger.info(f"Arguments: {args}")
 
@@ -225,6 +273,8 @@ def main():
     # Log system information
     sys_info = get_system_info()
     logger.info(f"System info: {sys_info}")
+
+    benchmark_dir = None
 
     try:
         # Additional safety checks for physical devices
@@ -269,6 +319,12 @@ def main():
         # Get mount point for benchmarking
         mount_point = device_manager.get_mount_point()
         logger.info(f"Using mount point: {mount_point}")
+
+        # Create temporary directory for benchmarks
+        benchmark_dir = create_temp_dir(mount_point)
+
+        atexit.register(lambda: cleanup_handler(benchmark_dir))
+        interrupt_handler.register_cleanup(lambda: cleanup_handler(benchmark_dir))
 
         if args.ramdisk:
             logger.info("RAM disk benchmarking mode - device setup complete")
@@ -320,7 +376,7 @@ def main():
 
         # Run benchmarks
         print("\nStarting benchmark tests...")
-        results = orchestrator.run_all_benchmarks(device_path, mount_point)
+        results = orchestrator.run_all_benchmarks(device_path, benchmark_dir)
 
         # Stop resource monitoring
         resource_monitor.stop_monitoring()
@@ -361,11 +417,16 @@ def main():
 
         logger.info("Benchmark completed successfully")
 
+        # Clean up temporary directory
+        cleanup_temp_dir(benchmark_dir)
+
     except KeyboardInterrupt:
         logger.warning("Benchmark interrupted by user")
+        cleanup_temp_dir(benchmark_dir)
         sys.exit(1)
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
+        cleanup_temp_dir(benchmark_dir)
         sys.exit(1)
 
     logger.info("Benchmark completed successfully")

@@ -66,7 +66,7 @@ class BenchmarkOrchestrator:
         return [bench.name for bench in self.benchmarks]
 
     def run_all_benchmarks(
-        self, device_path: str, mount_point: str
+        self, device_path: str, benchmark_dir: str
     ) -> List[BenchmarkResult]:
         """Run all available benchmarks."""
         logger.info(f"Running {len(self.benchmarks)} benchmarks on {device_path}")
@@ -75,7 +75,7 @@ class BenchmarkOrchestrator:
         print(f"RUNNING {len(self.benchmarks)} BENCHMARK TESTS")
         print(f"{'='*60}")
         print(f"Target: {device_path}")
-        print(f"Mount Point: {mount_point}")
+        print(f"Benchmark Directory: {benchmark_dir}")
         print(f"Tests: {', '.join([b.name for b in self.benchmarks])}")
         print()
 
@@ -103,7 +103,7 @@ class BenchmarkOrchestrator:
             )
 
             try:
-                result = benchmark.run(device_path, mount_point)
+                result = benchmark.run(device_path, benchmark_dir)
                 self.results.append(result)
 
                 if result.success:
@@ -122,7 +122,7 @@ class BenchmarkOrchestrator:
                 error_result = BenchmarkResult(
                     tool_name=benchmark.name,
                     device_path=device_path,
-                    mount_point=mount_point,
+                    mount_point=benchmark_dir,
                     timestamp=datetime.now().isoformat(),
                     success=False,
                     duration_seconds=0.0,
@@ -152,13 +152,13 @@ class BenchmarkOrchestrator:
         return self.results
 
     def run_specific_benchmark(
-        self, benchmark_name: str, device_path: str, mount_point: str
+        self, benchmark_name: str, device_path: str, temp_dir: str
     ) -> Optional[BenchmarkResult]:
         """Run a specific benchmark by name."""
         for benchmark in self.benchmarks:
             if benchmark.name == benchmark_name:
                 logger.info(f"Running {benchmark_name} benchmark...")
-                result = benchmark.run(device_path, mount_point)
+                result = benchmark.run(device_path, temp_dir)
                 self.results.append(result)
                 return result
 
