@@ -146,14 +146,14 @@ class BenchmarkOrchestrator:
         failed = len(self.results) - successful
         total_time = sum(r.duration_seconds for r in self.results)
 
-        print(f"{'='*60}")
-        print("BENCHMARK EXECUTION COMPLETED")
-        print(f"{'='*60}")
-        print(f"Total tests: {len(self.results)}")
-        print(f"Successful: {successful}")
-        print(f"Failed: {failed}")
-        print(f"Total time: {total_time:.2f} seconds")
-        print(f"{'='*60}")
+        logger.info(f"{'='*60}")
+        logger.info("BENCHMARK EXECUTION COMPLETED")
+        logger.info(f"{'='*60}")
+        logger.info(f"Total tests: {len(self.results)}")
+        logger.info(f"Successful: {successful}")
+        logger.info(f"Failed: {failed}")
+        logger.info(f"Total time: {total_time:.2f} seconds")
+        logger.info(f"{'='*60}")
 
         return self.results
 
@@ -191,11 +191,11 @@ class BenchmarkOrchestrator:
         if result.tool_name == "hdparm":
             if "buffered_reads_speed_mbps" in result.metrics:
                 metrics_summary.append(
-                    f"Read: {result.metrics['buffered_reads_speed_mbps']:.1f} MB/s"
+                    f"Buffered read: {result.metrics['buffered_reads_speed_mbps']:.1f} MB/s"
                 )
             if "cached_reads_speed_mbps" in result.metrics:
                 metrics_summary.append(
-                    f"Cached: {result.metrics['cached_reads_speed_mbps']:.1f} MB/s"
+                    f"Cached read: {result.metrics['cached_reads_speed_mbps']:.1f} MB/s"
                 )
 
         elif result.tool_name == "dd":
@@ -205,49 +205,37 @@ class BenchmarkOrchestrator:
                 )
 
         elif result.tool_name == "fio":
-            # Handle write test results
-            if "write_throughput_mbps" in result.metrics:
-                metrics_summary.append(
-                    f"Write: {result.metrics['write_throughput_mbps']:.1f} MB/s"
-                )
-            if "write_iops" in result.metrics:
-                metrics_summary.append(f"W-IOPS: {result.metrics['write_iops']:.0f}")
-            # Handle random read-write test results
             if "read_throughput_mbps" in result.metrics:
                 metrics_summary.append(
-                    f"RandR: {result.metrics['read_throughput_mbps']:.1f} MB/s"
-                )
-            if "write_throughput_mbps" in result.metrics:
-                metrics_summary.append(
-                    f"RandW: {result.metrics['write_throughput_mbps']:.1f} MB/s"
+                    f"Read throughput: {result.metrics['read_throughput_mbps']:.1f} MB/s"
                 )
             if "read_iops" in result.metrics:
                 metrics_summary.append(f"R-IOPS: {result.metrics['read_iops']:.0f}")
+            if "write_throughput_mbps" in result.metrics:
+                metrics_summary.append(
+                    f"Write throughput: {result.metrics['write_throughput_mbps']:.1f} MB/s"
+                )
             if "write_iops" in result.metrics:
                 metrics_summary.append(f"W-IOPS: {result.metrics['write_iops']:.0f}")
 
         elif result.tool_name == "sysbench":
             if "read_throughput_mbps" in result.metrics:
                 metrics_summary.append(
-                    f"Read: {result.metrics['read_throughput_mbps']:.1f} MB/s"
+                    f"Read throughput: {result.metrics['read_throughput_mbps']:.1f} MB/s"
                 )
             if "write_throughput_mbps" in result.metrics:
                 metrics_summary.append(
-                    f"Write: {result.metrics['write_throughput_mbps']:.1f} MB/s"
-                )
-            if "total_throughput_mbps" in result.metrics:
-                metrics_summary.append(
-                    f"Total: {result.metrics['total_throughput_mbps']:.1f} MB/s"
+                    f"Write throughput: {result.metrics['write_throughput_mbps']:.1f} MB/s"
                 )
             elif "file_operations_per_sec" in result.metrics:
                 metrics_summary.append(
-                    f"Ops: {result.metrics['file_operations_per_sec']:.0f}/s"
+                    f"File Ops: {result.metrics['file_operations_per_sec']:.0f}/s"
                 )
 
         elif result.tool_name == "ioping":
             if "latency_avg_us" in result.metrics:
                 metrics_summary.append(
-                    f"Latency: {result.metrics['latency_avg_us']:.1f} μs"
+                    f"Latency avg: {result.metrics['latency_avg_us']:.1f} μs"
                 )
             if "iops" in result.metrics:
                 metrics_summary.append(f"IOPS: {result.metrics['iops']:.0f}")
@@ -259,7 +247,9 @@ class BenchmarkOrchestrator:
         summary_text = (
             ", ".join(metrics_summary) if metrics_summary else "No key metrics"
         )
-        print(f"  ✅ Completed in {result.duration_seconds:.2f}s - {summary_text}")
+        logger.info(
+            f"  ✅ Completed in {result.duration_seconds:.2f}s - {summary_text}"
+        )
 
     def _cleanup_benchmark_directory(self, benchmark_dir: str):
         """Clean up test files from benchmark directory."""

@@ -397,16 +397,12 @@ def main():
         enhanced_device_info["resource_monitoring"] = monitoring_report
 
         # Generate detailed reports
-        text_report_path = report_generator.generate_report(
+        report_generator.generate_report(
             results, enhanced_device_info, sys_info, config
         )
-        json_report_path = report_generator.generate_json_report(
+        report_generator.generate_json_report(
             results, enhanced_device_info, sys_info, config
         )
-
-        print("\nReports generated:")
-        print(f"  Text report: {text_report_path}")
-        print(f"  JSON report: {json_report_path}")
 
         # Display resource monitoring summary
         if monitoring_report and "error" not in monitoring_report:

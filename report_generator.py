@@ -128,14 +128,14 @@ class ReportGenerator:
         lines.append("-" * 40)
 
         for result in results:
-            lines.append(f"\n{result.tool_name.upper()} BENCHMARK")
+            lines.append(f"{result.tool_name.upper()} BENCHMARK")
             lines.append(f"{'=' * (len(result.tool_name) + 10)}")
             lines.append(f"Status: {'SUCCESS' if result.success else 'FAILED'}")
             lines.append(f"Duration: {result.duration_seconds:.2f} seconds")
             lines.append(f"Timestamp: {result.timestamp}")
 
             if result.success and result.metrics:
-                lines.append("\nMetrics:")
+                lines.append("Metrics:")
                 if result.tool_name == "fio":
                     lines.extend(self._format_fio_metrics(result.metrics))
                 else:
@@ -143,13 +143,13 @@ class ReportGenerator:
                         lines.append(f"  {key}: {value}")
 
             if result.raw_output:
-                lines.append("\nRaw Output:")
+                lines.append("Raw Output:")
                 for line in result.raw_output.split("\n"):
                     if line.strip():
                         lines.append(f"  {line}")
 
             if not result.success and result.error_message:
-                lines.append(f"\nError: {result.error_message}")
+                lines.append(f"Error: {result.error_message}")
 
             lines.append("")
 
@@ -257,25 +257,24 @@ class ReportGenerator:
         """Print a comprehensive summary to console."""
         summary = self._generate_summary(results)
 
-        print(f"\n{'=' * 70}")
-        print("COMPREHENSIVE BENCHMARK RESULTS SUMMARY")
-        print(f"{'=' * 70}")
-        print(f"Total benchmarks: {summary['total_benchmarks']}")
-        print(f"Successful: {summary['successful_benchmarks']}")
-        print(f"Failed: {summary['failed_benchmarks']}")
-        print(f"Total duration: {summary['total_duration_seconds']:.2f} seconds")
-        print()
+        logger.info(f"{'=' * 70}")
+        logger.info("COMPREHENSIVE BENCHMARK RESULTS SUMMARY")
+        logger.info(f"{'=' * 70}")
+        logger.info(f"Total benchmarks: {summary['total_benchmarks']}")
+        logger.info(f"Successful: {summary['successful_benchmarks']}")
+        logger.info(f"Failed: {summary['failed_benchmarks']}")
+        logger.info(f"Total duration: {summary['total_duration_seconds']:.2f} seconds")
 
         # Print detailed results for each benchmark
-        print("DETAILED BENCHMARK RESULTS:")
-        print("-" * 70)
+        logger.info("DETAILED BENCHMARK RESULTS:")
+        logger.info(f"{'=' * 70}")
 
         for result in results:
             status_icon = "✅" if result.success else "💥"
             status_text = "SUCCESS" if result.success else "FAILED"
 
-            print(
-                f"\n{status_icon} {result.tool_name.upper()} - {status_text} ({result.duration_seconds:.2f}s)"
+            logger.info(
+                f"{status_icon} {result.tool_name.upper()} - {status_text} ({result.duration_seconds:.2f}s)"
             )
 
             if result.success and result.metrics:
@@ -284,138 +283,140 @@ class ReportGenerator:
 
                 if result.tool_name == "hdparm":
                     if "buffered_reads_speed_mbps" in result.metrics:
-                        print(
+                        logger.info(
                             f"  • Buffered reads: {result.metrics['buffered_reads_speed_mbps']:.2f} MB/s"
                         )
                         metrics_printed = True
                     if "cached_reads_speed_mbps" in result.metrics:
-                        print(
+                        logger.info(
                             f"  • Cached reads: {result.metrics['cached_reads_speed_mbps']:.2f} MB/s"
                         )
                         metrics_printed = True
                 elif result.tool_name == "dd":
                     if "transfer_rate_mbps" in result.metrics:
-                        print(
+                        logger.info(
                             f"  • Write speed: {result.metrics['transfer_rate_mbps']:.2f} MB/s"
                         )
                         metrics_printed = True
                 elif result.tool_name == "fio":
                     # Handle write test results
                     if result.metrics["test_type"] == "write_test":
-                        print("  • Write Test:")
+                        logger.info("  • Write Test:")
                         if "write_throughput_mbps" in result.metrics:
-                            print(
+                            logger.info(
                                 f"    - Write throughput: {result.metrics['write_throughput_mbps']:.2f} MB/s"
                             )
                             metrics_printed = True
                         if "write_iops" in result.metrics:
-                            print(
+                            logger.info(
                                 f"    - Write IOPS: {result.metrics['write_iops']:.0f}"
                             )
                             metrics_printed = True
                         if "disk_util_percent" in result.metrics:
-                            print(
+                            logger.info(
                                 f"    - Disk Utilization: {result.metrics['disk_util_percent']:.1f}%"
                             )
                             metrics_printed = True
 
                     # Handle random read-write test results
                     if result.metrics["test_type"] == "randrw_test":
-                        print("  • Random Read-Write Test:")
+                        logger.info("  • Random Read-Write Test:")
                         if "read_throughput_mbps" in result.metrics:
-                            print(
+                            logger.info(
                                 f"    - Read throughput: {result.metrics['read_throughput_mbps']:.2f} MB/s"
                             )
                             metrics_printed = True
                         if "write_throughput_mbps" in result.metrics:
-                            print(
+                            logger.info(
                                 f"    - Write throughput: {result.metrics['write_throughput_mbps']:.2f} MB/s"
                             )
                             metrics_printed = True
                         if "read_iops" in result.metrics:
-                            print(f"    - Read IOPS: {result.metrics['read_iops']:.0f}")
+                            logger.info(
+                                f"    - Read IOPS: {result.metrics['read_iops']:.0f}"
+                            )
                             metrics_printed = True
                         if "write_iops" in result.metrics:
-                            print(
+                            logger.info(
                                 f"    - Write IOPS: {result.metrics['write_iops']:.0f}"
                             )
                             metrics_printed = True
                         if "disk_util_percent" in result.metrics:
-                            print(
+                            logger.info(
                                 f"    - Disk Utilization: {result.metrics['disk_util_percent']:.1f}%"
                             )
                             metrics_printed = True
                 elif result.tool_name == "sysbench":
                     if "read_throughput_mbps" in result.metrics:
-                        print(
+                        logger.info(
                             f"  • Read throughput: {result.metrics['read_throughput_mbps']:.2f} MB/s"
                         )
                         metrics_printed = True
                     if "write_throughput_mbps" in result.metrics:
-                        print(
+                        logger.info(
                             f"  • Write throughput: {result.metrics['write_throughput_mbps']:.2f} MB/s"
                         )
                         metrics_printed = True
                 elif result.tool_name == "ioping":
                     if "latency_avg_us" in result.metrics:
-                        print(
+                        logger.info(
                             f"  • Average latency: {result.metrics['latency_avg_us']:.2f} μs"
                         )
                         metrics_printed = True
                     if "latency_min_us" in result.metrics:
-                        print(
+                        logger.info(
                             f"  • Minimum latency: {result.metrics['latency_min_us']:.2f} μs"
                         )
                         metrics_printed = True
                     if "latency_max_us" in result.metrics:
-                        print(
+                        logger.info(
                             f"  • Maximum latency: {result.metrics['latency_max_us']:.2f} μs"
                         )
                         metrics_printed = True
                     if "latency_mdev_us" in result.metrics:
-                        print(
+                        logger.info(
                             f"  • Latency deviation: {result.metrics['latency_mdev_us']:.2f} μs"
                         )
                         metrics_printed = True
                     if "iops" in result.metrics:
-                        print(f"  • IOPS: {result.metrics['iops']:.0f}")
+                        logger.info(f"  • IOPS: {result.metrics['iops']:.0f}")
                         metrics_printed = True
                     if "throughput_mbps" in result.metrics:
-                        print(
+                        logger.info(
                             f"  • Throughput: {result.metrics['throughput_mbps']:.2f} MB/s"
                         )
                         metrics_printed = True
                 if not metrics_printed:
-                    print("  • No detailed metrics available")
+                    logger.info("  • No detailed metrics available")
             elif not result.success:
-                print(f"  • Error: {result.error_message or 'Unknown error'}")
+                logger.info(f"  • Error: {result.error_message or 'Unknown error'}")
 
         # Key performance summary
         if summary["performance_metrics"]:
-            print(f"\n{'=' * 70}")
-            print("KEY PERFORMANCE INDICATORS:")
-            print(f"{'=' * 70}")
+            logger.info(f"{'=' * 70}")
+            logger.info("KEY PERFORMANCE INDICATORS:")
+            logger.info(f"{'=' * 70}")
 
             for key, value in summary["performance_metrics"].items():
                 if "latency" in key:
-                    print(f"  {self._format_metric_name(key)}: {value:.2f} μs")
+                    logger.info(f"  {self._format_metric_name(key)}: {value:.2f} μs")
                 elif "iops" in key:
-                    print(f"  {self._format_metric_name(key)}: {value:.0f} IOPS")
+                    logger.info(f"  {self._format_metric_name(key)}: {value:.0f} IOPS")
                 elif "throughput" in key or "speed" in key or "throughput" in key:
-                    print(f"  {self._format_metric_name(key)}: {value:.2f} MB/s")
+                    logger.info(f"  {self._format_metric_name(key)}: {value:.2f} MB/s")
                 elif "ops_per_sec" in key:
-                    print(f"  {self._format_metric_name(key)}: {value:.2f} ops/s")
+                    logger.info(f"  {self._format_metric_name(key)}: {value:.2f} ops/s")
                 elif "disk_util" in key:
-                    print(f"  {self._format_metric_name(key)}: {value:.1f}%")
+                    logger.info(f"  {self._format_metric_name(key)}: {value:.1f}%")
                 else:
-                    print(f"  {self._format_metric_name(key)}: {value:.2f}")
+                    logger.info(f"  {self._format_metric_name(key)}: {value:.2f}")
 
-        print(f"\n{'=' * 70}")
-        print("📄 FULL REPORTS AVAILABLE:")
-        print("  • Complete detailed text report with raw output")
-        print("  • JSON format report for analysis and integration")
-        print("  • Check 'reports/' directory for timestamped files")
-        print(f"{'=' * 70}")
+        logger.info(f"{'=' * 70}")
+        logger.info("📄 FULL REPORTS AVAILABLE:")
+        logger.info("  • Complete detailed text report with raw output")
+        logger.info("  • JSON format report for analysis and integration")
+        logger.info("  • Check 'reports/' directory for timestamped files")
+        logger.info(f"{'=' * 70}")
 
     def _format_metric_name(self, metric_name: str) -> str:
         """Format metric name for display."""
